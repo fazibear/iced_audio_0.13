@@ -3,9 +3,15 @@
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
 mod draw;
+mod knob_info;
 mod state;
-use state::State;
+mod value_markers;
 
+use crate::{
+    core::{ModulationRange, Normal, NormalParam},
+    style::knob::{Appearance, StyleSheet},
+    widget::SliderStatus,
+};
 use iced::{
     advanced::{
         graphics::core::{event, keyboard, touch},
@@ -15,37 +21,10 @@ use iced::{
     },
     Element, Event, Length, Rectangle, Size,
 };
-
-struct ValueMarkers<'a> {
-    // tick_marks: Option<&'a tick_marks::Group>,
-    // text_marks: Option<&'a text_marks::Group>,
-    mod_range_1: Option<&'a ModulationRange>,
-    mod_range_2: Option<&'a ModulationRange>,
-    // tick_marks_style: Option<TickMarksAppearance>,
-    // text_marks_style: Option<TextMarksAppearance>,
-    value_arc_style: Option<ValueArcAppearance>,
-    mod_range_style_1: Option<ModRangeArcAppearance>,
-    mod_range_style_2: Option<ModRangeArcAppearance>,
-}
-
-#[derive(Debug)]
-struct KnobInfo {
-    bounds: Rectangle,
-    start_angle: f32,
-    angle_span: f32,
-    radius: f32,
-    value: Normal,
-    bipolar_center: Option<Normal>,
-    value_angle: f32,
-}
-
-use crate::{
-    core::{ModulationRange, Normal, NormalParam},
-    style::knob::{ModRangeArcAppearance, ValueArcAppearance},
-};
-use crate::{style::knob::Appearance, widget::SliderStatus};
+use knob_info::KnobInfo;
+use state::State;
+use value_markers::ValueMarkers;
 //use crate::native::{text_marks, tick_marks, SliderStatus};
-use crate::style::knob::StyleSheet;
 
 static DEFAULT_SIZE: f32 = 30.0;
 static DEFAULT_SCALAR: f32 = 0.00385;
@@ -328,15 +307,11 @@ where
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
-        rectangle: &Rectangle,
+        _rectangle: &Rectangle,
     ) -> event::Status {
         let state = state.state.downcast_mut::<State>();
 
-        let is_mouse_over = if let Some(position) = cursor.position() {
-            layout.bounds().contains(position)
-        } else {
-            false
-        };
+        let is_over = cursor.is_over(layout.bounds());
 
         // Update state after a discontinuity
         if state.dragging_status.is_none() && state.prev_normal != self.normal_param.value {
@@ -370,7 +345,7 @@ where
                     return event::Status::Ignored;
                 }
 
-                if is_mouse_over {
+                if is_over {
                     let lines = match delta {
                         mouse::ScrollDelta::Lines { y, .. } => y,
                         mouse::ScrollDelta::Pixels { y, .. } => {
@@ -408,7 +383,7 @@ where
             }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if is_mouse_over {
+                if is_over {
                     let click = mouse::Click::new(
                         cursor.position().unwrap(),
                         mouse::Button::Left,
@@ -498,17 +473,13 @@ where
 
         let bounds = layout.bounds();
 
-        let is_mouse_over = if let Some(position) = cursor.position() {
-            bounds.contains(position)
-        } else {
-            false
-        };
+        let is_over = cursor.is_over(bounds);
 
         let angle_range = theme.angle_range(&self.style);
 
         let appearance = if state.dragging_status.is_some() {
             theme.dragging(&self.style)
-        } else if is_mouse_over {
+        } else if is_over {
             theme.hovered(&self.style)
         } else {
             theme.active(&self.style)
