@@ -7,10 +7,10 @@ edition = "2024"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-iced = { version = "0.13.1", default-features = false, features = ["advanced"] }
+iced = { version = "0.13.1", default-features = false, features = ["advanced", "canvas"] }
 
 [dev-dependencies]
-iced = { version = "0.13.1", features = ["advanced", "wgpu"] }
+iced = { version = "0.13.1", features = ["canvas", "advanced", "wgpu"] }
 
 [[example]]
 name = "knob"
