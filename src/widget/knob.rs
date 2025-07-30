@@ -1,41 +1,49 @@
 //! Display an interactive rotating knob that controls a [`NormalParam`]
 //!
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
+
+mod draw;
+mod state;
+use state::State;
+
 use iced::{
     advanced::{
         graphics::core::keyboard,
         layout, mouse,
         renderer::{self, Quad},
-        widget::Tree,
+        widget::{tree, Tree},
         Layout, Widget,
     },
-    Border, Color, Element, Length, Rectangle, Shadow, Size, Theme,
+    Border, Color, Element, Length, Rectangle, Shadow, Size,
 };
 
-/// Moved status for the virtual sliders.
-///
-/// This allows tracking the virtual slider actual movements
-/// thus preventing some events from unnecessary being emitted.
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
-pub(crate) enum SliderStatus {
-    Moved,
-    #[default]
-    Unchanged,
+struct ValueMarkers<'a> {
+    // tick_marks: Option<&'a tick_marks::Group>,
+    // text_marks: Option<&'a text_marks::Group>,
+    mod_range_1: Option<&'a ModulationRange>,
+    mod_range_2: Option<&'a ModulationRange>,
+    // tick_marks_style: Option<TickMarksAppearance>,
+    // text_marks_style: Option<TextMarksAppearance>,
+    value_arc_style: Option<ValueArcAppearance>,
+    mod_range_style_1: Option<ModRangeArcAppearance>,
+    mod_range_style_2: Option<ModRangeArcAppearance>,
 }
 
-impl SliderStatus {
-    /// Sets the slider as moved.
-    pub(crate) fn moved(&mut self) {
-        *self = SliderStatus::Moved;
-    }
-
-    /// Whether the slider was moved.
-    pub(crate) fn was_moved(self) -> bool {
-        matches!(self, SliderStatus::Moved)
-    }
+struct KnobInfo {
+    bounds: Rectangle,
+    start_angle: f32,
+    angle_span: f32,
+    radius: f32,
+    value: Normal,
+    bipolar_center: Option<Normal>,
+    value_angle: f32,
 }
 
-use crate::core::{ModulationRange, Normal, NormalParam};
+use crate::{
+    core::{ModulationRange, Normal, NormalParam},
+    style::knob::{ModRangeArcAppearance, ValueArcAppearance},
+};
+use crate::{style::knob::Appearance, widget::SliderStatus};
 //use crate::native::{text_marks, tick_marks, SliderStatus};
 use crate::style::knob::StyleSheet;
 
@@ -281,47 +289,10 @@ where
     // }
 }
 
-/// The local state of a [`Knob`].
-///
-/// [`Knob`]: struct.Knob.html
-#[derive(Debug, Clone)]
-struct State {
-    dragging_status: Option<SliderStatus>,
-    prev_drag_y: f32,
-    prev_normal: Normal,
-    continuous_normal: f32,
-    pressed_modifiers: keyboard::Modifiers,
-    last_click: Option<mouse::Click>,
-    //    tick_marks_cache: crate::graphics::tick_marks::PrimitiveCache,
-    //    text_marks_cache: crate::graphics::text_marks::PrimitiveCache,
-}
-
-impl State {
-    /// Creates a new [`Knob`] state.
-    ///
-    /// It expects:
-    /// * current [`Normal`] value for the [`Knob`]
-    ///
-    /// [`Normal`]: ../../core/normal/struct.Normal.html
-    /// [`Knob`]: struct.Knob.html
-    fn new(normal: Normal) -> Self {
-        Self {
-            dragging_status: None,
-            prev_drag_y: 0.0,
-            prev_normal: normal,
-            continuous_normal: normal.as_f32(),
-            pressed_modifiers: Default::default(),
-            last_click: None,
-            //          tick_marks_cache: Default::default(),
-            //        text_marks_cache: Default::default(),
-        }
-    }
-}
-
 impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Knob<'a, Message, Theme>
 where
     Message: 'a + Clone,
-    Renderer: 'a + renderer::Renderer,
+    Renderer: 'a + iced::advanced::graphics::geometry::Renderer,
     Theme: StyleSheet,
 {
     fn size(&self) -> Size<Length> {
@@ -343,28 +314,114 @@ where
         })
     }
 
+    fn tag(&self) -> tree::Tag {
+        tree::Tag::of::<State>()
+    }
+
+    fn state(&self) -> tree::State {
+        tree::State::new(State::new(self.normal_param.value))
+    }
+
     fn draw(
         &self,
-        _state: &Tree,
+        state: &Tree,
         renderer: &mut Renderer,
-        _theme: &Theme,
+        theme: &Theme,
         _style: &renderer::Style,
         layout: Layout<'_>,
-        _cursor: mouse::Cursor,
+        cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
-        renderer.fill_quad(
-            Quad {
-                bounds: layout.bounds(),
-                border: Border {
-                    color: Color::from_rgb(0.6, 0.8, 1.0),
-                    width: 1.0,
-                    radius: 10.0.into(),
-                },
-                shadow: Shadow::default(),
-            },
-            Color::from_rgb(0.0, 0.2, 0.4),
-        );
+        let state = state.state.downcast_ref::<State>();
+
+        let bounds = layout.bounds();
+
+        let is_mouse_over = if let Some(position) = cursor.position() {
+            bounds.contains(position)
+        } else {
+            false
+        };
+
+        let angle_range = theme.angle_range(&self.style);
+
+        let appearance = if state.dragging_status.is_some() {
+            theme.dragging(&self.style)
+        } else if is_mouse_over {
+            theme.hovered(&self.style)
+        } else {
+            theme.active(&self.style)
+        };
+
+        let value_markers = ValueMarkers {
+            //            self.tick_marks,
+            //          self.text_marks,
+            mod_range_1: self.mod_range_1,
+            mod_range_2: self.mod_range_2,
+            //        tick_marks_style: style_sheet.tick_marks_appearance(style),
+            //       text_marks_style: style_sheet.text_marks_appearance(style),
+            value_arc_style: theme.value_arc_appearance(&self.style),
+            mod_range_style_1: theme.mod_range_arc_appearance(&self.style),
+            mod_range_style_2: theme.mod_range_arc_appearance_2(&self.style),
+        };
+
+        let bounds = {
+            let bounds = Rectangle {
+                x: bounds.x.round(),
+                y: bounds.y.round(),
+                width: bounds.width.round(),
+                height: bounds.height.round(),
+            };
+
+            if bounds.width == bounds.height {
+                bounds
+            } else if bounds.width > bounds.height {
+                Rectangle {
+                    x: (bounds.x + (bounds.width - bounds.height) / 2.0).round(),
+                    y: bounds.y,
+                    width: bounds.height,
+                    height: bounds.height,
+                }
+            } else {
+                Rectangle {
+                    x: bounds.x,
+                    y: (bounds.y + (bounds.height - bounds.width) / 2.0).round(),
+                    width: bounds.width,
+                    height: bounds.width,
+                }
+            }
+        };
+
+        let radius = bounds.width / 2.0;
+
+        let start_angle = if angle_range.min() >= crate::core::math::THREE_HALVES_PI {
+            angle_range.min() - crate::core::math::THREE_HALVES_PI
+        } else {
+            angle_range.min() + std::f32::consts::FRAC_PI_2
+        };
+        let angle_span = angle_range.max() - angle_range.min();
+        let value_angle = start_angle + (self.normal_param.value.scale(angle_span));
+
+        let knob_info = KnobInfo {
+            bounds,
+            start_angle,
+            angle_span,
+            radius,
+            value: self.normal_param.value,
+            bipolar_center: self.bipolar_center,
+            value_angle,
+        };
+
+        match appearance {
+            Appearance::Circle(style) => draw::draw_circle_style(
+                renderer,
+                &knob_info,
+                style,
+                &value_markers,
+                //tick_marks_cache,
+                //text_marks_cache,
+            ),
+            _ => todo!(),
+        }
     }
 }
 
@@ -372,7 +429,7 @@ impl<'a, Message, Theme, Renderer> From<Knob<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
-    Renderer: 'a + renderer::Renderer,
+    Renderer: 'a + iced::advanced::graphics::geometry::Renderer,
     Theme: 'a + StyleSheet,
 {
     fn from(knob: Knob<'a, Message, Theme>) -> Self {

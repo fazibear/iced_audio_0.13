@@ -1,5 +1,5 @@
 use iced::{widget::container, Length};
-use iced_audio::{Knob, Normal, NormalParam};
+use iced_audio::{style, FloatRange, Knob, Normal, NormalParam};
 
 fn main() -> iced::Result {
     iced::run("Knob Example", KnobExample::update, KnobExample::view)
@@ -17,7 +17,8 @@ impl KnobExample {
     fn update(&mut self, _message: Message) {}
 
     fn view(&self) -> iced::Element<Message> {
-        let knob = Knob::new(NormalParam::default(), Message::KnobChange);
+        let float_range = FloatRange::default_bipolar();
+        let knob = Knob::new(float_range.default_normal_param(), Message::KnobChange);
         container(knob)
             .width(Length::Fill)
             .height(Length::Fill)
