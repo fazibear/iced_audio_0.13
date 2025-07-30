@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use iced::{
     advanced::renderer::{self, Quad},
     border::Radius,
@@ -7,12 +9,37 @@ use iced::{
 
 use crate::{
     style::knob::{
-        CircleAppearance, CircleNotch, LineNotch, ModRangeArcAppearance, NotchShape,
-        ValueArcAppearance,
+        ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
+        ModRangeArcAppearance, NotchShape, ValueArcAppearance,
     },
     widget::knob::{KnobInfo, ValueMarkers},
     ModulationRange, Normal,
 };
+
+enum BipolarState {
+    Left,
+    Right,
+    Center,
+}
+
+impl BipolarState {
+    pub fn from_knob_info(knob_info: &KnobInfo) -> Self {
+        if let Some(center) = knob_info.bipolar_center {
+            match knob_info.value.partial_cmp(&center) {
+                Some(Ordering::Less) => BipolarState::Left,
+                Some(Ordering::Equal) => BipolarState::Center,
+                Some(Ordering::Greater) => BipolarState::Right,
+                None => BipolarState::Center,
+            }
+        } else if knob_info.value.as_f32() < 0.499 {
+            BipolarState::Left
+        } else if knob_info.value.as_f32() > 0.501 {
+            BipolarState::Right
+        } else {
+            BipolarState::Center
+        }
+    }
+}
 
 pub fn draw_circle_style<Renderer>(
     renderer: &mut Renderer,
@@ -67,6 +94,184 @@ pub fn draw_circle_style<Renderer>(
     );
 
     draw_notch(renderer, knob_info, &style.notch);
+}
+
+pub fn draw_arc_style<Renderer>(
+    renderer: &mut Renderer,
+    knob_info: &KnobInfo,
+    style: ArcAppearance,
+    value_markers: &ValueMarkers<'_>,
+    //    tick_marks_cache: &tick_marks::PrimitiveCache,
+    //    text_marks_cache: &text_marks::PrimitiveCache,
+) where
+    Renderer: iced::advanced::graphics::geometry::Renderer,
+{
+    // let (tick_marks, text_marks, value_arc, mod_range_arc_1, mod_range_arc_2) =
+    //draw_value_markers(knob_info, value_markers, tick_marks_cache, text_marks_cache);
+
+    let width = style.width.from_knob_diameter(knob_info.bounds.width);
+
+    let center_point = Point::new(knob_info.radius, knob_info.radius);
+    let arc_radius = knob_info.radius - (width / 2.0);
+
+    let mut frame = Frame::new(
+        renderer,
+        Size::new(knob_info.bounds.width, knob_info.bounds.width),
+    );
+
+    let empty_stroke = Stroke {
+        width,
+        style: canvas::Style::Solid(style.empty_color),
+        line_cap: style.cap,
+        ..Stroke::default()
+    };
+
+    let empty_arc = Arc {
+        center: center_point,
+        radius: arc_radius,
+        start_angle: Radians(knob_info.start_angle),
+        end_angle: Radians(knob_info.start_angle + knob_info.angle_span),
+    };
+
+    let empty_path = Path::new(|path| path.arc(empty_arc));
+
+    frame.stroke(&empty_path, empty_stroke);
+
+    let filled_stroke = Stroke {
+        width,
+        style: canvas::Style::Solid(style.filled_color),
+        line_cap: style.cap,
+        ..Stroke::default()
+    };
+
+    let filled_arc = Arc {
+        center: center_point,
+        radius: arc_radius,
+        start_angle: Radians(knob_info.start_angle),
+        end_angle: Radians(knob_info.value_angle),
+    };
+
+    let filled_path = Path::new(|path| path.arc(filled_arc));
+
+    frame.stroke(&filled_path, filled_stroke);
+
+    renderer.with_translation(
+        Vector::new(knob_info.bounds.x, knob_info.bounds.y),
+        |renderer| {
+            renderer.draw_geometry(frame.into_geometry());
+        },
+    );
+
+    draw_notch(renderer, knob_info, &style.notch);
+}
+
+pub fn draw_arc_bipolar_style<Renderer>(
+    renderer: &mut Renderer,
+    knob_info: &KnobInfo,
+    style: ArcBipolarAppearance,
+    value_markers: &ValueMarkers<'_>,
+    // tick_marks_cache: &tick_marks::PrimitiveCache,
+    // text_marks_cache: &text_marks::PrimitiveCache,
+) where
+    Renderer: iced::advanced::graphics::geometry::Renderer,
+{
+    // let (tick_marks, text_marks, value_arc, mod_range_arc_1, mod_range_arc_2) =
+    //     draw_value_markers(knob_info, value_markers, tick_marks_cache, text_marks_cache);
+
+    let bipolar_state = BipolarState::from_knob_info(knob_info);
+
+    let width = style.width.from_knob_diameter(knob_info.bounds.width);
+
+    let center_point = Point::new(knob_info.radius, knob_info.radius);
+    let arc_radius = knob_info.radius - (width / 2.0);
+
+    let mut frame = Frame::new(
+        renderer,
+        Size::new(knob_info.bounds.width, knob_info.bounds.width),
+    );
+
+    let empty_stroke = Stroke {
+        width,
+        style: canvas::Style::Solid(style.empty_color),
+        line_cap: style.cap,
+        ..Stroke::default()
+    };
+
+    let empty_arc = Arc {
+        center: center_point,
+        radius: arc_radius,
+        start_angle: Radians(knob_info.start_angle),
+        end_angle: Radians(knob_info.start_angle + knob_info.angle_span),
+    };
+
+    let empty_path = Path::new(|path| path.arc(empty_arc));
+
+    frame.stroke(&empty_path, empty_stroke);
+
+    let center_angle = knob_info.start_angle
+        + knob_info
+            .bipolar_center
+            .unwrap_or_else(|| Normal::from_clipped(0.5))
+            .scale(knob_info.angle_span);
+
+    match bipolar_state {
+        BipolarState::Left => {
+            let filled_stroke = Stroke {
+                width,
+                style: canvas::Style::Solid(style.left_filled_color),
+                line_cap: style.cap,
+                ..Stroke::default()
+            };
+
+            let filled_arc = Arc {
+                center: center_point,
+                radius: arc_radius,
+                start_angle: Radians(knob_info.value_angle),
+                end_angle: Radians(center_angle),
+            };
+
+            let filled_path = Path::new(|path| path.arc(filled_arc));
+
+            frame.stroke(&filled_path, filled_stroke);
+        }
+        BipolarState::Right => {
+            let filled_stroke = Stroke {
+                width,
+                style: canvas::Style::Solid(style.right_filled_color),
+                line_cap: style.cap,
+                ..Stroke::default()
+            };
+
+            let filled_arc = Arc {
+                center: center_point,
+                radius: arc_radius,
+                start_angle: Radians(center_angle),
+                end_angle: Radians(knob_info.value_angle),
+            };
+
+            let filled_path = Path::new(|path| path.arc(filled_arc));
+
+            frame.stroke(&filled_path, filled_stroke);
+        }
+        _ => {}
+    }
+
+    renderer.with_translation(
+        Vector::new(knob_info.bounds.x, knob_info.bounds.y),
+        |renderer| {
+            renderer.draw_geometry(frame.into_geometry());
+        },
+    );
+
+    if let Some((notch_left, notch_right)) = style.notch_left_right {
+        match bipolar_state {
+            BipolarState::Left => draw_notch(renderer, knob_info, &notch_left),
+            BipolarState::Right => draw_notch(renderer, knob_info, &notch_right),
+            BipolarState::Center => draw_notch(renderer, knob_info, &style.notch_center),
+        }
+    } else {
+        draw_notch(renderer, knob_info, &style.notch_center)
+    };
 }
 
 fn draw_circle_notch<Renderer: renderer::Renderer>(

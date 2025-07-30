@@ -8,13 +8,12 @@ use state::State;
 
 use iced::{
     advanced::{
-        graphics::core::keyboard,
-        layout, mouse,
-        renderer::{self, Quad},
+        graphics::core::{event, keyboard, touch},
+        layout, mouse, renderer,
         widget::{tree, Tree},
-        Layout, Widget,
+        Clipboard, Layout, Shell, Widget,
     },
-    Border, Color, Element, Length, Rectangle, Shadow, Size,
+    Element, Event, Length, Rectangle, Size,
 };
 
 struct ValueMarkers<'a> {
@@ -29,6 +28,7 @@ struct ValueMarkers<'a> {
     mod_range_style_2: Option<ModRangeArcAppearance>,
 }
 
+#[derive(Debug)]
 struct KnobInfo {
     bounds: Rectangle,
     start_angle: f32,
@@ -272,21 +272,21 @@ where
         SliderStatus::Moved
     }
 
-    // fn maybe_fire_on_grab(&mut self, shell: &mut Shell<'_, Message>) {
-    //     if let Some(message) = self.on_grab.as_mut().and_then(|on_grab| on_grab()) {
-    //         shell.publish(message);
-    //     }
-    // }
-    //
-    // fn fire_on_change(&self, shell: &mut Shell<'_, Message>) {
-    //     shell.publish((self.on_change)(self.normal_param.value));
-    // }
-    //
-    // fn maybe_fire_on_release(&mut self, shell: &mut Shell<'_, Message>) {
-    //     if let Some(message) = self.on_release.as_mut().and_then(|on_release| on_release()) {
-    //         shell.publish(message);
-    //     }
-    // }
+    fn maybe_fire_on_grab(&mut self, shell: &mut Shell<'_, Message>) {
+        if let Some(message) = self.on_grab.as_mut().and_then(|on_grab| on_grab()) {
+            shell.publish(message);
+        }
+    }
+
+    fn fire_on_change(&self, shell: &mut Shell<'_, Message>) {
+        shell.publish((self.on_change)(self.normal_param.value));
+    }
+
+    fn maybe_fire_on_release(&mut self, shell: &mut Shell<'_, Message>) {
+        if let Some(message) = self.on_release.as_mut().and_then(|on_release| on_release()) {
+            shell.publish(message);
+        }
+    }
 }
 
 impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Knob<'a, Message, Theme>
@@ -297,8 +297,8 @@ where
 {
     fn size(&self) -> Size<Length> {
         Size {
-            width: Length::Shrink,
-            height: Length::Shrink,
+            width: self.size,
+            height: self.size,
         }
     }
 
@@ -306,12 +306,9 @@ where
         &self,
         _tree: &mut Tree,
         _renderer: &Renderer,
-        _limits: &layout::Limits,
+        limits: &layout::Limits,
     ) -> layout::Node {
-        layout::Node::new(iced::Size {
-            width: 100.0,
-            height: 100.0,
-        })
+        layout::Node::new(limits.resolve(self.size, self.size, Size::ZERO))
     }
 
     fn tag(&self) -> tree::Tag {
@@ -320,6 +317,171 @@ where
 
     fn state(&self) -> tree::State {
         tree::State::new(State::new(self.normal_param.value))
+    }
+
+    fn on_event(
+        &mut self,
+        state: &mut Tree,
+        event: Event,
+        layout: Layout<'_>,
+        cursor: mouse::Cursor,
+        _renderer: &Renderer,
+        _clipboard: &mut dyn Clipboard,
+        shell: &mut Shell<'_, Message>,
+        rectangle: &Rectangle,
+    ) -> event::Status {
+        let state = state.state.downcast_mut::<State>();
+
+        let is_mouse_over = if let Some(position) = cursor.position() {
+            layout.bounds().contains(position)
+        } else {
+            false
+        };
+
+        // Update state after a discontinuity
+        if state.dragging_status.is_none() && state.prev_normal != self.normal_param.value {
+            state.prev_normal = self.normal_param.value;
+            state.continuous_normal = self.normal_param.value.as_f32();
+        }
+
+        match event {
+            Event::Mouse(mouse::Event::CursorMoved { position })
+            | Event::Touch(touch::Event::FingerMoved { position, .. }) => {
+                if state.dragging_status.is_some() {
+                    let normal_delta = (position.y - state.prev_drag_y) * self.scalar;
+
+                    state.prev_drag_y = position.y;
+
+                    if self.move_virtual_slider(state, normal_delta).was_moved() {
+                        self.fire_on_change(shell);
+
+                        state
+                            .dragging_status
+                            .as_mut()
+                            .expect("dragging_status taken")
+                            .moved();
+                    }
+
+                    return event::Status::Captured;
+                }
+            }
+            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
+                if self.wheel_scalar == 0.0 {
+                    return event::Status::Ignored;
+                }
+
+                if is_mouse_over {
+                    let lines = match delta {
+                        mouse::ScrollDelta::Lines { y, .. } => y,
+                        mouse::ScrollDelta::Pixels { y, .. } => {
+                            if y > 0.0 {
+                                1.0
+                            } else if y < 0.0 {
+                                -1.0
+                            } else {
+                                0.0
+                            }
+                        }
+                    };
+
+                    if lines != 0.0 {
+                        let normal_delta = -lines * self.wheel_scalar;
+
+                        if self.move_virtual_slider(state, normal_delta).was_moved() {
+                            if state.dragging_status.is_none() {
+                                self.maybe_fire_on_grab(shell);
+                            }
+
+                            self.fire_on_change(shell);
+
+                            if let Some(slider_status) = state.dragging_status.as_mut() {
+                                // Widget was grabbed => keep it grabbed
+                                slider_status.moved();
+                            } else {
+                                self.maybe_fire_on_release(shell);
+                            }
+                        }
+
+                        return event::Status::Captured;
+                    }
+                }
+            }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerPressed { .. }) => {
+                if is_mouse_over {
+                    let click = mouse::Click::new(
+                        cursor.position().unwrap(),
+                        mouse::Button::Left,
+                        state.last_click,
+                    );
+
+                    match click.kind() {
+                        mouse::click::Kind::Single => {
+                            self.maybe_fire_on_grab(shell);
+
+                            state.dragging_status = Some(Default::default());
+                            state.prev_drag_y = cursor.position().unwrap().y;
+                        }
+                        _ => {
+                            // Reset to default
+
+                            let prev_dragging_status = state.dragging_status.take();
+
+                            if self.normal_param.value != self.normal_param.default {
+                                if prev_dragging_status.is_none() {
+                                    self.maybe_fire_on_grab(shell);
+                                }
+
+                                self.normal_param.value = self.normal_param.default;
+
+                                self.fire_on_change(shell);
+
+                                self.maybe_fire_on_release(shell);
+                            } else if prev_dragging_status.is_some() {
+                                self.maybe_fire_on_release(shell);
+                            }
+                        }
+                    }
+
+                    state.last_click = Some(click);
+
+                    return event::Status::Captured;
+                }
+            }
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerLifted { .. })
+            | Event::Touch(touch::Event::FingerLost { .. }) => {
+                if let Some(slider_status) = state.dragging_status.take() {
+                    if self.on_grab.is_some() || slider_status.was_moved() {
+                        // maybe fire on release if `on_grab` is defined
+                        // so as to terminate the action, regardless of the actual user movement.
+                        self.maybe_fire_on_release(shell);
+                    }
+
+                    return event::Status::Captured;
+                }
+            }
+            Event::Keyboard(keyboard_event) => match keyboard_event {
+                keyboard::Event::KeyPressed { modifiers, .. } => {
+                    state.pressed_modifiers = modifiers;
+
+                    return event::Status::Captured;
+                }
+                keyboard::Event::KeyReleased { modifiers, .. } => {
+                    state.pressed_modifiers = modifiers;
+
+                    return event::Status::Captured;
+                }
+                keyboard::Event::ModifiersChanged(modifiers) => {
+                    state.pressed_modifiers = modifiers;
+
+                    return event::Status::Captured;
+                }
+            },
+            _ => {}
+        }
+
+        event::Status::Ignored
     }
 
     fn draw(
@@ -420,7 +582,23 @@ where
                 //tick_marks_cache,
                 //text_marks_cache,
             ),
-            _ => todo!(),
+            Appearance::Arc(style) => draw::draw_arc_style(
+                renderer,
+                &knob_info,
+                style,
+                &value_markers,
+                //tick_marks_cache,
+                //text_marks_cache,
+            ),
+
+            Appearance::ArcBipolar(style) => draw::draw_arc_bipolar_style(
+                renderer,
+                &knob_info,
+                style,
+                &value_markers,
+                //tick_marks_cache,
+                //text_marks_cache,
+            ),
         }
     }
 }
