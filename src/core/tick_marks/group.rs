@@ -14,7 +14,7 @@ pub struct Group {
     tier_2_positions: Vec<Normal>,
     tier_3_positions: Vec<Normal>,
     len: usize,
-    hashed: u64,
+    //hashed: u64,
 }
 
 impl Default for Group {
@@ -61,7 +61,7 @@ impl Group {
             tier_2_positions,
             tier_3_positions,
             len,
-            hashed: hasher.finish(),
+            //hashed: hasher.finish(),
         }
     }
 
@@ -106,17 +106,17 @@ impl Group {
     /// Creates a group of tick marks by subdividing the range.
     ///
     /// * `one` - The number of tier 1 tick marks. For example, `1` will put
-    /// a single tier 1 tick mark at the `0.5` (center) position. `3` will put
-    /// three tick marks at `0.25`, `0.5`, `0.75`. For no tier 1 tick marks,
-    /// put `0`.
+    ///   a single tier 1 tick mark at the `0.5` (center) position. `3` will put
+    ///   three tick marks at `0.25`, `0.5`, `0.75`. For no tier 1 tick marks,
+    ///   put `0`.
     /// * `two` - The number of tier 2 tick marks in each range between tier 1
-    /// tick marks. If there are no tier 1 tick marks, then it will behave the
-    /// same as tier 1 tick marks.
+    ///   tick marks. If there are no tier 1 tick marks, then it will behave the
+    ///   same as tier 1 tick marks.
     /// * `three` - The number of tier 3 tick marks in each range between tier
-    /// 2 tick marks. If there are no tier 2 tick marks, then it will behave the
-    /// same as tier 2 tick marks.
+    ///   2 tick marks. If there are no tier 2 tick marks, then it will behave the
+    ///   same as tier 2 tick marks.
     /// * `sides` - The tier of tick marks to put on the two sides (`0.0` and
-    /// `1.0`). For no tick marks on the sides, put `None`.
+    ///   `1.0`). For no tick marks on the sides, put `None`.
     pub fn subdivided(one: usize, two: usize, three: usize, sides: Option<Tier>) -> Self {
         let mut tick_marks: Vec<(Normal, Tier)> =
             Vec::with_capacity(one + (two * one) + (three * two * one) + 2);
@@ -230,10 +230,10 @@ impl Group {
         self.len == 0
     }
 
-    /// Returns the hashed value of the internal data.
-    pub(crate) fn hashed(&self) -> u64 {
-        self.hashed
-    }
+    // /// Returns the hashed value of the internal data.
+    // pub(crate) fn hashed(&self) -> u64 {
+    //     self.hashed
+    // }
 }
 
 impl From<Vec<(Normal, Tier)>> for Group {

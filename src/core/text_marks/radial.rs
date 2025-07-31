@@ -1,13 +1,8 @@
 use iced::{
-    //    advanced::{text::Renderer as _, Text},
-    advanced::Text,
+    Pixels, Point, Rectangle, Renderer, Size,
+    advanced::{Text, text::Renderer as _},
     alignment::{Horizontal, Vertical},
     widget::text::{LineHeight, Shaping, Wrapping},
-    Color,
-    Pixels,
-    Point,
-    Rectangle,
-    Size,
 };
 
 use super::Group;
@@ -21,12 +16,12 @@ use crate::style::text_marks::Appearance;
 /// * `text_marks` - The group of text marks.
 /// * `style` - The text marks style.
 /// * `h_char_offset` - Extra horizontal offset in pixels for each additional
-/// character in the text label. This is used to keep longer labels on the sides
-/// from being too close to the arc.
+///   character in the text label. This is used to keep longer labels on the sides
+///   from being too close to the arc.
 /// * `inverse` - Whether to inverse the positions of the text marks (true) or
-/// not (false).
+///   not (false).
 #[allow(clippy::too_many_arguments)]
-pub fn draw_radial_text_marks<Renderer>(
+pub fn draw_radial_text_marks(
     renderer: &mut Renderer,
     center: Point,
     radius: f32,
@@ -37,10 +32,7 @@ pub fn draw_radial_text_marks<Renderer>(
     h_char_offset: f32,
     inverse: bool,
     //    cache: &PrimitiveCache,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer
-        + iced::advanced::text::Renderer<Font = iced::Font>,
-{
+) {
     let color = style.color;
     let font = style.font;
     let text_size = f32::from(style.text_size);

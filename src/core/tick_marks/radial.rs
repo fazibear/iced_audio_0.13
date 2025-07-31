@@ -1,16 +1,17 @@
+use super::Group;
+use crate::{
+    core::Normal,
+    style::tick_marks::{Appearance, Shape},
+};
 use iced::{
+    Color, Point, Renderer, Size, Vector,
+    advanced::{Renderer as _, graphics::geometry::Renderer as _},
     widget::canvas::{self, Fill, Frame, LineCap, Path, Stroke},
-    Color, Point, Size, Vector,
 };
 
-use super::Group;
-use crate::core::Normal;
-//use crate::native::tick_marks;
-use crate::style::tick_marks::{Appearance, Shape};
-
 #[allow(clippy::too_many_arguments)]
-fn draw_radial_circles<Renderer>(
-    frame: &mut Frame<Renderer>,
+fn draw_radial_circles(
+    frame: &mut Frame,
     offset_radius: f32,
     start_angle: f32,
     angle_span: f32,
@@ -18,9 +19,7 @@ fn draw_radial_circles<Renderer>(
     color: Color,
     radius: f32,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     let path = Path::circle(Point::new(0.0, -offset_radius), radius);
 
     if inverse {
@@ -63,8 +62,8 @@ fn draw_radial_circles<Renderer>(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn draw_radial_lines<Renderer>(
-    frame: &mut Frame<Renderer>,
+fn draw_radial_lines(
+    frame: &mut Frame,
     offset_radius: f32,
     start_angle: f32,
     angle_span: f32,
@@ -73,9 +72,7 @@ fn draw_radial_lines<Renderer>(
     width: f32,
     length: f32,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     let path = Path::line(
         Point::new(0.0, -offset_radius),
         Point::new(0.0, -offset_radius - length),
@@ -126,8 +123,8 @@ fn draw_radial_lines<Renderer>(
 
 #[inline]
 #[allow(clippy::too_many_arguments)]
-fn draw_tier<Renderer>(
-    frame: &mut Frame<Renderer>,
+fn draw_tier(
+    frame: &mut Frame,
     offset_radius: f32,
     start_angle: f32,
     angle_span: f32,
@@ -135,9 +132,7 @@ fn draw_tier<Renderer>(
     shape: &Shape,
     inside: bool,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     if let Some(tick_marks) = tick_marks {
         match shape {
             Shape::None => (),
@@ -235,13 +230,13 @@ fn max_length(style: &Appearance) -> f32 {
 /// * `start_angle` - The starting angle of the arc in radians
 /// * `angle_span` - The span of the angle in radians
 /// * `inside` - Whether to place the tick marks inside the radius (true),
-/// or outside the radius (false).
+///   or outside the radius (false).
 /// * `tick_marks` - The group of tick marks.
 /// * `style` - The tick marks style.
 /// * `inverse` - Whether to inverse the positions of the tick marks (true) or
-/// not (false).
+///   not (false).
 #[allow(clippy::too_many_arguments)]
-pub fn draw_radial_tick_marks<Renderer>(
+pub fn draw_radial_tick_marks(
     renderer: &mut Renderer,
     center: Point,
     radius: f32,
@@ -251,9 +246,7 @@ pub fn draw_radial_tick_marks<Renderer>(
     tick_marks: &Group,
     style: &Appearance,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     let frame_radius = if inside {
         radius
     } else {

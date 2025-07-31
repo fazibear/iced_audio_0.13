@@ -1,15 +1,18 @@
 //! `iced` renderer for tick marks
 
 use super::Group;
-use crate::core::Normal;
-use iced::{
-    advanced::renderer::Quad, border::Radius, Background, Border, Color, Rectangle, Shadow,
+use crate::{
+    core::Normal,
+    style::tick_marks::{Appearance, Placement, Shape},
 };
-//use crate::native::tick_marks;
-use crate::style::tick_marks::{Appearance, Placement, Shape};
+use iced::{
+    Background, Border, Color, Rectangle, Renderer, Shadow,
+    advanced::{Renderer as _, renderer::Quad},
+    border::Radius,
+};
 
 #[allow(clippy::too_many_arguments)]
-fn draw_vertical_lines<Renderer>(
+fn draw_vertical_lines(
     renderer: &mut Renderer,
     tick_marks: &[Normal],
     bounds_y: f32,
@@ -19,9 +22,7 @@ fn draw_vertical_lines<Renderer>(
     length: f32,
     color: Color,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     let start_y = bounds_y - (width / 2.0);
     let back_color = Background::Color(color);
 
@@ -69,7 +70,7 @@ fn draw_vertical_lines<Renderer>(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn draw_vertical_circles<Renderer>(
+fn draw_vertical_circles(
     renderer: &mut Renderer,
     tick_marks: &[Normal],
     bounds_y: f32,
@@ -78,10 +79,7 @@ fn draw_vertical_circles<Renderer>(
     diameter: f32,
     color: Color,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
-    let diameter = diameter;
+) {
     let radius = diameter / 2.0;
     let start_y = bounds_y - radius;
     let back_color = Background::Color(color);
@@ -130,16 +128,14 @@ fn draw_vertical_circles<Renderer>(
 }
 
 #[inline]
-fn draw_vertical_left_aligned_tier<Renderer>(
+fn draw_vertical_left_aligned_tier(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     x: f32,
     tick_marks: Option<&Vec<Normal>>,
     shape: &Shape,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     if let Some(tick_marks) = tick_marks {
         match shape {
             Shape::None => (),
@@ -176,16 +172,14 @@ fn draw_vertical_left_aligned_tier<Renderer>(
     }
 }
 
-fn draw_vertical_left_aligned<Renderer>(
+fn draw_vertical_left_aligned(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     x: f32,
     tick_marks: &Group,
     style: &Appearance,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     draw_vertical_left_aligned_tier(
         renderer,
         bounds,
@@ -213,16 +207,14 @@ fn draw_vertical_left_aligned<Renderer>(
 }
 
 #[inline]
-fn draw_vertical_right_aligned_tier<Renderer>(
+fn draw_vertical_right_aligned_tier(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     x: f32,
     tick_marks: Option<&Vec<Normal>>,
     shape: &Shape,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     if let Some(tick_marks) = tick_marks {
         match shape {
             Shape::None => (),
@@ -259,16 +251,14 @@ fn draw_vertical_right_aligned_tier<Renderer>(
     }
 }
 
-fn draw_vertical_right_aligned<Renderer>(
+fn draw_vertical_right_aligned(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     x: f32,
     tick_marks: &Group,
     style: &Appearance,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     draw_vertical_right_aligned_tier(
         renderer,
         bounds,
@@ -296,7 +286,7 @@ fn draw_vertical_right_aligned<Renderer>(
 }
 
 #[inline]
-fn draw_vertical_center_aligned_tier<Renderer>(
+fn draw_vertical_center_aligned_tier(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     x: f32,
@@ -304,9 +294,7 @@ fn draw_vertical_center_aligned_tier<Renderer>(
     shape: &Shape,
     fill_length: bool,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     if let Some(tick_marks) = tick_marks {
         match shape {
             Shape::None => (),
@@ -355,7 +343,7 @@ fn draw_vertical_center_aligned_tier<Renderer>(
     }
 }
 
-fn draw_vertical_center_aligned<Renderer>(
+fn draw_vertical_center_aligned(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     x: f32,
@@ -363,9 +351,7 @@ fn draw_vertical_center_aligned<Renderer>(
     style: &Appearance,
     fill_length: bool,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     draw_vertical_center_aligned_tier(
         renderer,
         bounds,
@@ -397,7 +383,7 @@ fn draw_vertical_center_aligned<Renderer>(
 
 #[inline]
 #[allow(clippy::too_many_arguments)]
-fn draw_vertical_center_aligned_split_tier<Renderer>(
+fn draw_vertical_center_aligned_split_tier(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     x: f32,
@@ -406,9 +392,7 @@ fn draw_vertical_center_aligned_split_tier<Renderer>(
     fill_length: bool,
     gap: f32,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     if let Some(tick_marks) = tick_marks {
         match shape {
             Shape::None => (),
@@ -487,7 +471,7 @@ fn draw_vertical_center_aligned_split_tier<Renderer>(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn draw_vertical_center_aligned_split<Renderer>(
+fn draw_vertical_center_aligned_split(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     x: f32,
@@ -496,9 +480,7 @@ fn draw_vertical_center_aligned_split<Renderer>(
     fill_length: bool,
     gap: f32,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     draw_vertical_center_aligned_split_tier(
         renderer,
         bounds,
@@ -538,17 +520,15 @@ fn draw_vertical_center_aligned_split<Renderer>(
 /// * style - The tick marks style.
 /// * placement - The placement of the tick marks relative to the bounds.
 /// * inverse - Whether to inverse the positions of the tick marks (true) or
-/// not (false).
-pub fn draw_vertical_tick_marks<Renderer>(
+///   not (false).
+pub fn draw_vertical_tick_marks(
     renderer: &mut Renderer,
     bounds: &Rectangle,
     tick_marks: &Group,
     style: &Appearance,
     placement: &Placement,
     inverse: bool,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     match placement {
         Placement::BothSides { offset, inside } => {
             let bounds = offset.offset_rect(bounds);

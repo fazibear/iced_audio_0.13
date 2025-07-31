@@ -3,10 +3,10 @@ use crate::{
     text_marks::Group,
 };
 use iced::{
-    advanced::{text::Renderer as _, Text},
+    Pixels, Point, Rectangle, Renderer, Size,
+    advanced::{Text, text::Renderer as _},
     alignment::{Horizontal, Vertical},
     widget::text::{LineHeight, Shaping, Wrapping},
-    Pixels, Point, Rectangle, Renderer, Size,
 };
 
 fn draw_aligned(
@@ -94,7 +94,7 @@ fn draw_aligned(
 /// * style - The text marks style.
 /// * placement - The placement of the text marks relative to the bounds.
 /// * inverse - Whether to inverse the positions of the text marks (true) or
-/// not (false).
+///   not (false).
 pub fn draw_vertical_text_marks(
     renderer: &mut Renderer,
     bounds: &Rectangle,

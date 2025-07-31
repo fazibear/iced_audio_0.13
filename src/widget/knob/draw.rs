@@ -1,12 +1,3 @@
-use std::cmp::Ordering;
-
-use iced::{
-    advanced::renderer::{self, Quad},
-    border::Radius,
-    widget::canvas::{self, path::Arc, Frame, Path, Stroke},
-    Border, Point, Radians, Rectangle, Shadow, Size, Vector,
-};
-
 use crate::{
     style::knob::{
         ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
@@ -17,6 +8,13 @@ use crate::{
     widget::knob::{KnobInfo, ValueMarkers},
     ModulationRange, Normal,
 };
+use iced::{
+    advanced::{graphics::geometry::Renderer as _, renderer::Quad, Renderer as _},
+    border::Radius,
+    widget::canvas::{self, path::Arc, Frame, Path, Stroke},
+    Border, Point, Radians, Rectangle, Renderer, Shadow, Size, Vector,
+};
+use std::cmp::Ordering;
 
 enum BipolarState {
     Left,
@@ -43,17 +41,14 @@ impl BipolarState {
     }
 }
 
-pub fn circle_style<Renderer>(
+pub fn circle_style(
     renderer: &mut Renderer,
     knob_info: &KnobInfo,
     style: CircleAppearance,
     value_markers: &ValueMarkers<'_>,
     //    tick_marks_cache: &tick_marks::PrimitiveCache,
     //    text_marks_cache: &text_marks::PrimitiveCache,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer
-        + iced::advanced::text::Renderer<Font = iced::Font>,
-{
+) {
     tick_marks(
         renderer,
         knob_info,
@@ -101,17 +96,14 @@ pub fn circle_style<Renderer>(
     notch(renderer, knob_info, &style.notch);
 }
 
-pub fn arc_style<Renderer>(
+pub fn arc_style(
     renderer: &mut Renderer,
     knob_info: &KnobInfo,
     style: ArcAppearance,
     value_markers: &ValueMarkers<'_>,
     //    tick_marks_cache: &tick_marks::PrimitiveCache,
     //    text_marks_cache: &text_marks::PrimitiveCache,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer
-        + iced::advanced::text::Renderer<Font = iced::Font>,
-{
+) {
     tick_marks(
         renderer,
         knob_info,
@@ -199,17 +191,14 @@ pub fn arc_style<Renderer>(
     notch(renderer, knob_info, &style.notch);
 }
 
-pub fn arc_bipolar_style<Renderer>(
+pub fn arc_bipolar_style(
     renderer: &mut Renderer,
     knob_info: &KnobInfo,
     style: ArcBipolarAppearance,
     value_markers: &ValueMarkers<'_>,
     // tick_marks_cache: &tick_marks::PrimitiveCache,
     // text_marks_cache: &text_marks::PrimitiveCache,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer
-        + iced::advanced::text::Renderer<Font = iced::Font>,
-{
+) {
     tick_marks(
         renderer,
         knob_info,
@@ -337,11 +326,7 @@ pub fn arc_bipolar_style<Renderer>(
     };
 }
 
-fn circle_notch<Renderer: renderer::Renderer>(
-    renderer: &mut Renderer,
-    knob_info: &KnobInfo,
-    style: &CircleNotch,
-) {
+fn circle_notch(renderer: &mut Renderer, knob_info: &KnobInfo, style: &CircleNotch) {
     let value_angle = knob_info.value_angle + std::f32::consts::FRAC_PI_2;
 
     let (dx, dy) = if !(-0.001..=0.001).contains(&value_angle) {
@@ -374,10 +359,7 @@ fn circle_notch<Renderer: renderer::Renderer>(
     );
 }
 
-fn line_notch<Renderer>(renderer: &mut Renderer, knob_info: &KnobInfo, style: &LineNotch)
-where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+fn line_notch(renderer: &mut Renderer, knob_info: &KnobInfo, style: &LineNotch) {
     let value_angle = knob_info.value_angle + std::f32::consts::FRAC_PI_2;
 
     let stroke = Stroke {
@@ -417,10 +399,7 @@ where
     );
 }
 
-fn notch<Renderer>(renderer: &mut Renderer, knob_info: &KnobInfo, notch: &NotchShape)
-where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+fn notch(renderer: &mut Renderer, knob_info: &KnobInfo, notch: &NotchShape) {
     match notch {
         NotchShape::Circle(style) => circle_notch(renderer, knob_info, style),
         NotchShape::Line(style) => line_notch(renderer, knob_info, style),
@@ -428,13 +407,7 @@ where
     }
 }
 
-fn value_arc<Renderer>(
-    renderer: &mut Renderer,
-    knob_info: &KnobInfo,
-    style: &Option<ValueArcAppearance>,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+fn value_arc(renderer: &mut Renderer, knob_info: &KnobInfo, style: &Option<ValueArcAppearance>) {
     if let Some(style) = style {
         let half_width = style.width / 2.0;
 
@@ -542,14 +515,12 @@ fn value_arc<Renderer>(
     }
 }
 
-fn mod_range_arc<Renderer>(
+fn mod_range_arc(
     renderer: &mut Renderer,
     knob_info: &KnobInfo,
     style: &Option<ModRangeArcAppearance>,
     mod_range: Option<&ModulationRange>,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     if let Some(mod_range) = mod_range {
         if let Some(style) = style {
             let half_width = style.width / 2.0;
@@ -629,15 +600,13 @@ fn mod_range_arc<Renderer>(
     }
 }
 
-fn tick_marks<Renderer>(
+fn tick_marks(
     renderer: &mut Renderer,
     knob_info: &KnobInfo,
     tick_marks: Option<&tick_marks::Group>,
     style: &Option<TickMarksAppearance>,
     //    tick_marks_cache: &tick_marks::PrimitiveCache,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
-{
+) {
     if let Some(tick_marks) = tick_marks {
         if let Some(style) = style {
             tick_marks::draw_radial_tick_marks(
@@ -656,16 +625,13 @@ fn tick_marks<Renderer>(
     }
 }
 
-fn text_marks<Renderer>(
+fn text_marks(
     renderer: &mut Renderer,
     knob_info: &KnobInfo,
     text_marks: Option<&text_marks::Group>,
     style: &Option<TextMarksAppearance>,
     //    text_marks_cache: &text_marks::PrimitiveCache,
-) where
-    Renderer: iced::advanced::graphics::geometry::Renderer
-        + iced::advanced::text::Renderer<Font = iced::Font>,
-{
+) {
     if let Some(text_marks) = text_marks {
         if let Some(style) = style {
             text_marks::draw_radial_text_marks(

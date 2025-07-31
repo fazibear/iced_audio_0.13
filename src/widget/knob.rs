@@ -20,7 +20,7 @@ use iced::{
         widget::{tree, Tree},
         Clipboard, Layout, Shell, Widget,
     },
-    Element, Event, Length, Rectangle, Size,
+    Element, Event, Length, Rectangle, Renderer, Size,
 };
 use knob_info::KnobInfo;
 use state::State;
@@ -269,13 +269,9 @@ where
     }
 }
 
-impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Knob<'a, Message, Theme>
+impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for Knob<'a, Message, Theme>
 where
     Message: 'a + Clone,
-    Renderer: 'a
-        + iced::advanced::graphics::geometry::Renderer
-        + iced::advanced::text::Renderer<Font = iced::Font>,
-
     Theme: StyleSheet,
 {
     fn size(&self) -> Size<Length> {
@@ -578,13 +574,9 @@ where
     }
 }
 
-impl<'a, Message, Theme, Renderer> From<Knob<'a, Message, Theme>>
-    for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme> From<Knob<'a, Message, Theme>> for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
-    Renderer: 'a
-        + iced::advanced::graphics::geometry::Renderer
-        + iced::advanced::text::Renderer<Font = iced::Font>,
 
     Theme: 'a + StyleSheet,
 {

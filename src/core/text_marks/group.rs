@@ -9,7 +9,7 @@ use crate::core::Normal;
 pub struct Group {
     /// The group of text marks.
     pub group: Vec<(Normal, String)>,
-    hashed: u64,
+    //hashed: u64,
 }
 
 impl Group {
@@ -43,7 +43,7 @@ impl Group {
 
         Self {
             group,
-            hashed: hasher.finish(),
+            //hashed: hasher.finish(),
         }
     }
 
@@ -143,10 +143,10 @@ impl Group {
         vec.into()
     }
 
-    /// Returns the hashed value of the internal data.
-    pub(crate) fn hashed(&self) -> u64 {
-        self.hashed
-    }
+    // /// Returns the hashed value of the internal data.
+    // pub(crate) fn hashed(&self) -> u64 {
+    //     self.hashed
+    // }
 }
 
 impl From<&[(Normal, &str)]> for Group {
