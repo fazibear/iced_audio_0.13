@@ -10,9 +10,10 @@ use iced::{
 use crate::{
     style::knob::{
         ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
-        ModRangeArcAppearance, NotchShape, TickMarksAppearance, ValueArcAppearance,
+        ModRangeArcAppearance, NotchShape, TextMarksAppearance, TickMarksAppearance,
+        ValueArcAppearance,
     },
-    tick_marks,
+    text_marks, tick_marks,
     widget::knob::{KnobInfo, ValueMarkers},
     ModulationRange, Normal,
 };
@@ -50,7 +51,8 @@ pub fn circle_style<Renderer>(
     //    tick_marks_cache: &tick_marks::PrimitiveCache,
     //    text_marks_cache: &text_marks::PrimitiveCache,
 ) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
+    Renderer: iced::advanced::graphics::geometry::Renderer
+        + iced::advanced::text::Renderer<Font = iced::Font>,
 {
     tick_marks(
         renderer,
@@ -59,12 +61,13 @@ pub fn circle_style<Renderer>(
         &value_markers.tick_marks_style,
         //tick_marks_cache,
     );
-    // text_marks(
-    //     knob_info,
-    //     value_markers.text_marks,
-    //     &value_markers.text_marks_style,
-    //     text_marks_cache,
-    // );
+    text_marks(
+        renderer,
+        knob_info,
+        value_markers.text_marks,
+        &value_markers.text_marks_style,
+        //text_marks_cache,
+    );
 
     value_arc(renderer, knob_info, &value_markers.value_arc_style);
 
@@ -106,10 +109,39 @@ pub fn arc_style<Renderer>(
     //    tick_marks_cache: &tick_marks::PrimitiveCache,
     //    text_marks_cache: &text_marks::PrimitiveCache,
 ) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
+    Renderer: iced::advanced::graphics::geometry::Renderer
+        + iced::advanced::text::Renderer<Font = iced::Font>,
 {
-    // let (tick_marks, text_marks, value_arc, mod_range_arc_1, mod_range_arc_2) =
-    //value_markers(knob_info, value_markers, tick_marks_cache, text_marks_cache);
+    tick_marks(
+        renderer,
+        knob_info,
+        value_markers.tick_marks,
+        &value_markers.tick_marks_style,
+        //tick_marks_cache,
+    );
+    text_marks(
+        renderer,
+        knob_info,
+        value_markers.text_marks,
+        &value_markers.text_marks_style,
+        //text_marks_cache,
+    );
+
+    value_arc(renderer, knob_info, &value_markers.value_arc_style);
+
+    mod_range_arc(
+        renderer,
+        knob_info,
+        &value_markers.mod_range_style_1,
+        value_markers.mod_range_1,
+    );
+
+    mod_range_arc(
+        renderer,
+        knob_info,
+        &value_markers.mod_range_style_2,
+        value_markers.mod_range_2,
+    );
 
     let width = style.width.from_knob_diameter(knob_info.bounds.width);
 
@@ -175,10 +207,39 @@ pub fn arc_bipolar_style<Renderer>(
     // tick_marks_cache: &tick_marks::PrimitiveCache,
     // text_marks_cache: &text_marks::PrimitiveCache,
 ) where
-    Renderer: iced::advanced::graphics::geometry::Renderer,
+    Renderer: iced::advanced::graphics::geometry::Renderer
+        + iced::advanced::text::Renderer<Font = iced::Font>,
 {
-    // let (tick_marks, text_marks, value_arc, mod_range_arc_1, mod_range_arc_2) =
-    //     value_markers(knob_info, value_markers, tick_marks_cache, text_marks_cache);
+    tick_marks(
+        renderer,
+        knob_info,
+        value_markers.tick_marks,
+        &value_markers.tick_marks_style,
+        //tick_marks_cache,
+    );
+    text_marks(
+        renderer,
+        knob_info,
+        value_markers.text_marks,
+        &value_markers.text_marks_style,
+        //text_marks_cache,
+    );
+
+    value_arc(renderer, knob_info, &value_markers.value_arc_style);
+
+    mod_range_arc(
+        renderer,
+        knob_info,
+        &value_markers.mod_range_style_1,
+        value_markers.mod_range_1,
+    );
+
+    mod_range_arc(
+        renderer,
+        knob_info,
+        &value_markers.mod_range_style_2,
+        value_markers.mod_range_2,
+    );
 
     let bipolar_state = BipolarState::from_knob_info(knob_info);
 
@@ -590,6 +651,37 @@ fn tick_marks<Renderer>(
                 &style.style,
                 false,
                 // tick_marks_cache,
+            )
+        }
+    }
+}
+
+fn text_marks<Renderer>(
+    renderer: &mut Renderer,
+    knob_info: &KnobInfo,
+    text_marks: Option<&text_marks::Group>,
+    style: &Option<TextMarksAppearance>,
+    //    text_marks_cache: &text_marks::PrimitiveCache,
+) where
+    Renderer: iced::advanced::graphics::geometry::Renderer
+        + iced::advanced::text::Renderer<Font = iced::Font>,
+{
+    if let Some(text_marks) = text_marks {
+        if let Some(style) = style {
+            text_marks::draw_radial_text_marks(
+                renderer,
+                Point::new(
+                    knob_info.bounds.center_x(),
+                    knob_info.bounds.center_y() + style.v_offset,
+                ),
+                knob_info.radius + style.offset,
+                knob_info.start_angle,
+                knob_info.angle_span,
+                text_marks,
+                &style.style,
+                style.h_char_offset,
+                false,
+                //                text_marks_cache,
             )
         }
     }

@@ -7,10 +7,13 @@ use iced::{
     Color, Element, Length, Result, Size, Theme,
 };
 use iced_audio::{
+    core::text_marks,
     core::tick_marks,
+    style,
     style::knob::{
         Appearance, ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
-        ModRangeArcAppearance, NotchShape, StyleLength, StyleSheet, ValueArcAppearance,
+        ModRangeArcAppearance, NotchShape, StyleLength, StyleSheet, TextMarksAppearance,
+        ValueArcAppearance,
     },
     FloatRange, FreqRange, IntRange, Knob, LogDBRange, Normal, NormalParam,
 };
@@ -75,20 +78,20 @@ impl StyleSheet for CustomStyleCircle {
         })
     }
 
-    // fn text_marks_appearance(&self, _style: &Self::Style) -> Option<TextMarksAppearance> {
-    //     Some(TextMarksAppearance {
-    //         style: text_marks::Appearance {
-    //             color: [0.16, 0.16, 0.16, 0.9].into(),
-    //             text_size: 11,
-    //             font: Default::default(),
-    //             bounds_width: 20,
-    //             bounds_height: 20,
-    //         },
-    //         offset: 15.0,
-    //         h_char_offset: 3.0,
-    //         v_offset: -0.75,
-    //     })
-    // }
+    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<TextMarksAppearance> {
+        Some(TextMarksAppearance {
+            style: style::text_marks::Appearance {
+                color: [0.16, 0.16, 0.16, 0.9].into(),
+                text_size: 11,
+                font: Default::default(),
+                bounds_width: 20,
+                bounds_height: 20,
+            },
+            offset: 15.0,
+            h_char_offset: 3.0,
+            v_offset: -0.75,
+        })
+    }
 }
 
 // Custom style for the Knob
@@ -270,11 +273,12 @@ pub struct KnobExample {
     int_tick_marks: tick_marks::Group,
     db_tick_marks: tick_marks::Group,
     freq_tick_marks: tick_marks::Group,
-    //
-    // float_text_marks: text_marks::Group,
-    // int_text_marks: text_marks::Group,
-    // db_text_marks: text_marks::Group,
-    // freq_text_marks: text_marks::Group,
+
+    float_text_marks: text_marks::Group,
+    int_text_marks: text_marks::Group,
+    db_text_marks: text_marks::Group,
+    freq_text_marks: text_marks::Group,
+
     output_text: String,
 }
 
@@ -336,16 +340,17 @@ impl Default for KnobExample {
                 (freq_range.map_to_normal(20000.0), tick_marks::Tier::Two),
             ]
             .into(),
-            //
-            // float_text_marks: text_marks::Group::min_max_and_center("-1", "+1", "0"),
-            // int_text_marks: text_marks::Group::evenly_spaced(&["A", "B", "C", "D", "E", "F"]),
-            // db_text_marks: text_marks::Group::min_max_and_center("-12", "+12", "0"),
-            // freq_text_marks: vec![
-            //     (freq_range.map_to_normal(100.0), "100"),
-            //     (freq_range.map_to_normal(1000.0), "1k"),
-            //     (freq_range.map_to_normal(10000.0), "10k"),
-            // ]
-            // .into(),
+
+            float_text_marks: text_marks::Group::min_max_and_center("-1", "+1", "0"),
+            int_text_marks: text_marks::Group::evenly_spaced(&["A", "B", "C", "D", "E", "F"]),
+            db_text_marks: text_marks::Group::min_max_and_center("-12", "+12", "0"),
+            freq_text_marks: vec![
+                (freq_range.map_to_normal(100.0), "100"),
+                (freq_range.map_to_normal(1000.0), "1k"),
+                (freq_range.map_to_normal(10000.0), "10k"),
+            ]
+            .into(),
+
             output_text: String::from("Move a widget"),
         }
     }
@@ -416,24 +421,25 @@ impl KnobExample {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_float =
-            Knob::new(self.knob_float_param, Message::Float).tick_marks(&self.float_tick_marks);
-        // .text_marks(&self.float_text_marks);
+        let knob_float = Knob::new(self.knob_float_param, Message::Float)
+            .tick_marks(&self.float_tick_marks)
+            .text_marks(&self.float_text_marks);
 
-        let knob_int =
-            Knob::new(self.knob_int_param, Message::Int).tick_marks(&self.int_tick_marks);
-        // .text_marks(&self.int_text_marks);
+        let knob_int = Knob::new(self.knob_int_param, Message::Int)
+            .tick_marks(&self.int_tick_marks)
+            .text_marks(&self.int_text_marks);
 
-        let knob_db = Knob::new(self.knob_db_param, Message::DB).tick_marks(&self.db_tick_marks);
-        // .text_marks(&self.db_text_marks);
+        let knob_db = Knob::new(self.knob_db_param, Message::DB)
+            .tick_marks(&self.db_tick_marks)
+            .text_marks(&self.db_text_marks);
 
-        let knob_freq =
-            Knob::new(self.knob_freq_param, Message::Freq).tick_marks(&self.freq_tick_marks);
-        // .text_marks(&self.freq_text_marks);
+        let knob_freq = Knob::new(self.knob_freq_param, Message::Freq)
+            .tick_marks(&self.freq_tick_marks)
+            .text_marks(&self.freq_text_marks);
 
-        let knob_style1 =
-            Knob::new(self.knob_style1_param, Message::Style1).style(CustomStyleCircle);
-        // .text_marks(&self.float_text_marks);
+        let knob_style1 = Knob::new(self.knob_style1_param, Message::Style1)
+            .style(CustomStyleCircle)
+            .text_marks(&self.float_text_marks);
 
         let knob_style2 = Knob::new(self.knob_style2_param, Message::Style2).style(CustomStyleLine);
 

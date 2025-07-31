@@ -10,7 +10,7 @@ mod value_markers;
 use crate::{
     core::{ModulationRange, Normal, NormalParam},
     style::knob::{Appearance, StyleSheet},
-    tick_marks::Group,
+    text_marks, tick_marks,
     widget::SliderStatus,
 };
 use iced::{
@@ -51,8 +51,8 @@ where
     modifier_keys: keyboard::Modifiers,
     bipolar_center: Option<Normal>,
     style: <Theme as StyleSheet>::Style,
-    tick_marks: Option<&'a Group>,
-    // text_marks: Option<&'a text_marks::Group>,
+    tick_marks: Option<&'a tick_marks::Group>,
+    text_marks: Option<&'a text_marks::Group>,
     mod_range_1: Option<&'a ModulationRange>,
     mod_range_2: Option<&'a ModulationRange>,
 }
@@ -86,7 +86,7 @@ where
             bipolar_center: None,
             style: Default::default(),
             tick_marks: None,
-            //          text_marks: None,
+            text_marks: None,
             mod_range_1: None,
             mod_range_2: None,
         }
@@ -188,7 +188,7 @@ where
     /// them to display (which the default style does).
     ///
     /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
-    pub fn tick_marks(mut self, tick_marks: &'a Group) -> Self {
+    pub fn tick_marks(mut self, tick_marks: &'a tick_marks::Group) -> Self {
         self.tick_marks = Some(tick_marks);
         self
     }
@@ -198,10 +198,10 @@ where
     /// them to display (which the default style does).
     ///
     /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
-    // pub fn text_marks(mut self, text_marks: &'a text_marks::Group) -> Self {
-    //     self.text_marks = Some(text_marks);
-    //     self
-    // }
+    pub fn text_marks(mut self, text_marks: &'a text_marks::Group) -> Self {
+        self.text_marks = Some(text_marks);
+        self
+    }
 
     /// Sets a [`ModulationRange`] to display. Note your [`StyleSheet`] must
     /// also implement `mod_range_style(&self) -> Option<ModRangeStyle>` for
@@ -272,7 +272,10 @@ where
 impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Knob<'a, Message, Theme>
 where
     Message: 'a + Clone,
-    Renderer: 'a + iced::advanced::graphics::geometry::Renderer,
+    Renderer: 'a
+        + iced::advanced::graphics::geometry::Renderer
+        + iced::advanced::text::Renderer<Font = iced::Font>,
+
     Theme: StyleSheet,
 {
     fn size(&self) -> Size<Length> {
@@ -488,11 +491,11 @@ where
 
         let value_markers = ValueMarkers {
             tick_marks: self.tick_marks,
-            //          self.text_marks,
+            text_marks: self.text_marks,
             mod_range_1: self.mod_range_1,
             mod_range_2: self.mod_range_2,
             tick_marks_style: theme.tick_marks_appearance(&self.style),
-            //       text_marks_style: style_sheet.text_marks_appearance(style),
+            text_marks_style: theme.text_marks_appearance(&self.style),
             value_arc_style: theme.value_arc_appearance(&self.style),
             mod_range_style_1: theme.mod_range_arc_appearance(&self.style),
             mod_range_style_2: theme.mod_range_arc_appearance_2(&self.style),
@@ -579,7 +582,10 @@ impl<'a, Message, Theme, Renderer> From<Knob<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
-    Renderer: 'a + iced::advanced::graphics::geometry::Renderer,
+    Renderer: 'a
+        + iced::advanced::graphics::geometry::Renderer
+        + iced::advanced::text::Renderer<Font = iced::Font>,
+
     Theme: 'a + StyleSheet,
 {
     fn from(knob: Knob<'a, Message, Theme>) -> Self {
