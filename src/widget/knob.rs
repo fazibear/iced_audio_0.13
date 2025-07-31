@@ -582,7 +582,9 @@ impl<'a, Message, Theme, Renderer> From<Knob<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
-    Renderer: 'a + iced::advanced::text::Renderer<Font = iced::Font>,
+    Renderer: 'a
+        + iced::advanced::graphics::geometry::Renderer
+        + iced::advanced::text::Renderer<Font = iced::Font>,
 
     Theme: 'a + StyleSheet,
 {
