@@ -45,6 +45,7 @@ fn draw_aligned(
                 },
                 Point { x, y },
                 color,
+                // TODO: What is this?
                 Rectangle {
                     x,
                     y,
@@ -74,6 +75,7 @@ fn draw_aligned(
                 },
                 Point { x, y },
                 color,
+                // TODO: What is this?
                 Rectangle {
                     x,
                     y,

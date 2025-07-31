@@ -91,6 +91,7 @@ pub fn draw_radial_text_marks<Renderer>(
                 y: (center.y - (dy * radius)).round(),
             },
             color,
+            // TODO: What is this?
             Rectangle {
                 x: 0.0,
                 y: 0.0,
