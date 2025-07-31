@@ -11,6 +11,9 @@ pub mod normal_param;
 pub mod offset;
 pub mod range;
 
+pub mod text_marks;
+pub mod tick_marks;
+
 pub use knob_angle_range::*;
 pub use modulation_range::ModulationRange;
 pub use normal::Normal;

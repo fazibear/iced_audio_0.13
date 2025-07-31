@@ -10,6 +10,7 @@ mod value_markers;
 use crate::{
     core::{ModulationRange, Normal, NormalParam},
     style::knob::{Appearance, StyleSheet},
+    tick_marks::Group,
     widget::SliderStatus,
 };
 use iced::{
@@ -50,7 +51,7 @@ where
     modifier_keys: keyboard::Modifiers,
     bipolar_center: Option<Normal>,
     style: <Theme as StyleSheet>::Style,
-    // tick_marks: Option<&'a tick_marks::Group>,
+    tick_marks: Option<&'a Group>,
     // text_marks: Option<&'a text_marks::Group>,
     mod_range_1: Option<&'a ModulationRange>,
     mod_range_2: Option<&'a ModulationRange>,
@@ -84,7 +85,7 @@ where
             modifier_keys: keyboard::Modifiers::CTRL,
             bipolar_center: None,
             style: Default::default(),
-            //            tick_marks: None,
+            tick_marks: None,
             //          text_marks: None,
             mod_range_1: None,
             mod_range_2: None,
@@ -187,10 +188,10 @@ where
     /// them to display (which the default style does).
     ///
     /// [`StyleSheet`]: ../../style/knob/trait.StyleSheet.html
-    // pub fn tick_marks(mut self, tick_marks: &'a tick_marks::Group) -> Self {
-    //     self.tick_marks = Some(tick_marks);
-    //     self
-    // }
+    pub fn tick_marks(mut self, tick_marks: &'a Group) -> Self {
+        self.tick_marks = Some(tick_marks);
+        self
+    }
 
     /// Sets the text marks to display. Note your [`StyleSheet`] must
     /// also implement `text_marks_style(&self) -> Option<text_marks::Style>` for
@@ -486,11 +487,11 @@ where
         };
 
         let value_markers = ValueMarkers {
-            //            self.tick_marks,
+            tick_marks: self.tick_marks,
             //          self.text_marks,
             mod_range_1: self.mod_range_1,
             mod_range_2: self.mod_range_2,
-            //        tick_marks_style: style_sheet.tick_marks_appearance(style),
+            tick_marks_style: theme.tick_marks_appearance(&self.style),
             //       text_marks_style: style_sheet.text_marks_appearance(style),
             value_arc_style: theme.value_arc_appearance(&self.style),
             mod_range_style_1: theme.mod_range_arc_appearance(&self.style),
@@ -545,7 +546,7 @@ where
         };
 
         match appearance {
-            Appearance::Circle(style) => draw::draw_circle_style(
+            Appearance::Circle(style) => draw::circle_style(
                 renderer,
                 &knob_info,
                 style,
@@ -553,7 +554,7 @@ where
                 //tick_marks_cache,
                 //text_marks_cache,
             ),
-            Appearance::Arc(style) => draw::draw_arc_style(
+            Appearance::Arc(style) => draw::arc_style(
                 renderer,
                 &knob_info,
                 style,
@@ -562,7 +563,7 @@ where
                 //text_marks_cache,
             ),
 
-            Appearance::ArcBipolar(style) => draw::draw_arc_bipolar_style(
+            Appearance::ArcBipolar(style) => draw::arc_bipolar_style(
                 renderer,
                 &knob_info,
                 style,

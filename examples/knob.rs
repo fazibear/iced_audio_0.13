@@ -7,6 +7,7 @@ use iced::{
     Color, Element, Length, Result, Size, Theme,
 };
 use iced_audio::{
+    core::tick_marks,
     style::knob::{
         Appearance, ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
         ModRangeArcAppearance, NotchShape, StyleLength, StyleSheet, ValueArcAppearance,
@@ -265,10 +266,10 @@ pub struct KnobExample {
     knob_style4_param: NormalParam,
     knob_style5_param: NormalParam,
 
-    // float_tick_marks: tick_marks::Group,
-    // int_tick_marks: tick_marks::Group,
-    // db_tick_marks: tick_marks::Group,
-    // freq_tick_marks: tick_marks::Group,
+    float_tick_marks: tick_marks::Group,
+    int_tick_marks: tick_marks::Group,
+    db_tick_marks: tick_marks::Group,
+    freq_tick_marks: tick_marks::Group,
     //
     // float_text_marks: text_marks::Group,
     // int_text_marks: text_marks::Group,
@@ -305,36 +306,36 @@ impl Default for KnobExample {
             knob_style4_param: float_range.default_normal_param(),
             knob_style5_param: float_range.normal_param(-0.6, -0.6),
 
-            // float_tick_marks: tick_marks::Group::subdivided(1, 1, 1, Some(tick_marks::Tier::Two)),
-            //
-            // int_tick_marks: tick_marks::Group::evenly_spaced(6, tick_marks::Tier::Two),
-            //
-            // db_tick_marks: vec![
-            //     (db_range.map_to_normal(0.0), tick_marks::Tier::One),
-            //     (db_range.map_to_normal(1.0), tick_marks::Tier::Two),
-            //     (db_range.map_to_normal(3.0), tick_marks::Tier::Two),
-            //     (db_range.map_to_normal(6.0), tick_marks::Tier::Two),
-            //     (db_range.map_to_normal(12.0), tick_marks::Tier::Two),
-            //     (db_range.map_to_normal(-1.0), tick_marks::Tier::Two),
-            //     (db_range.map_to_normal(-3.0), tick_marks::Tier::Two),
-            //     (db_range.map_to_normal(-6.0), tick_marks::Tier::Two),
-            //     (db_range.map_to_normal(-12.0), tick_marks::Tier::Two),
-            // ]
-            // .into(),
-            //
-            // freq_tick_marks: vec![
-            //     (freq_range.map_to_normal(20.0), tick_marks::Tier::Two),
-            //     (freq_range.map_to_normal(50.0), tick_marks::Tier::Two),
-            //     (freq_range.map_to_normal(100.0), tick_marks::Tier::One),
-            //     (freq_range.map_to_normal(200.0), tick_marks::Tier::Two),
-            //     (freq_range.map_to_normal(400.0), tick_marks::Tier::Two),
-            //     (freq_range.map_to_normal(1000.0), tick_marks::Tier::One),
-            //     (freq_range.map_to_normal(2000.0), tick_marks::Tier::Two),
-            //     (freq_range.map_to_normal(5000.0), tick_marks::Tier::Two),
-            //     (freq_range.map_to_normal(10000.0), tick_marks::Tier::One),
-            //     (freq_range.map_to_normal(20000.0), tick_marks::Tier::Two),
-            // ]
-            // .into(),
+            float_tick_marks: tick_marks::Group::subdivided(1, 1, 1, Some(tick_marks::Tier::Two)),
+
+            int_tick_marks: tick_marks::Group::evenly_spaced(6, tick_marks::Tier::Two),
+
+            db_tick_marks: vec![
+                (db_range.map_to_normal(0.0), tick_marks::Tier::One),
+                (db_range.map_to_normal(1.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(3.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(6.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(12.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(-1.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(-3.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(-6.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(-12.0), tick_marks::Tier::Two),
+            ]
+            .into(),
+
+            freq_tick_marks: vec![
+                (freq_range.map_to_normal(20.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(50.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(100.0), tick_marks::Tier::One),
+                (freq_range.map_to_normal(200.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(400.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(1000.0), tick_marks::Tier::One),
+                (freq_range.map_to_normal(2000.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(5000.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(10000.0), tick_marks::Tier::One),
+                (freq_range.map_to_normal(20000.0), tick_marks::Tier::Two),
+            ]
+            .into(),
             //
             // float_text_marks: text_marks::Group::min_max_and_center("-1", "+1", "0"),
             // int_text_marks: text_marks::Group::evenly_spaced(&["A", "B", "C", "D", "E", "F"]),
@@ -415,20 +416,19 @@ impl KnobExample {
         // create each of the Knob widgets, passing in the value of
         // the corresponding parameter
 
-        let knob_float = Knob::new(self.knob_float_param, Message::Float);
-        // .tick_marks(&self.float_tick_marks)
+        let knob_float =
+            Knob::new(self.knob_float_param, Message::Float).tick_marks(&self.float_tick_marks);
         // .text_marks(&self.float_text_marks);
 
-        let knob_int = Knob::new(self.knob_int_param, Message::Int);
-        // .tick_marks(&self.int_tick_marks)
+        let knob_int =
+            Knob::new(self.knob_int_param, Message::Int).tick_marks(&self.int_tick_marks);
         // .text_marks(&self.int_text_marks);
 
-        let knob_db = Knob::new(self.knob_db_param, Message::DB);
-        // .tick_marks(&self.db_tick_marks)
+        let knob_db = Knob::new(self.knob_db_param, Message::DB).tick_marks(&self.db_tick_marks);
         // .text_marks(&self.db_text_marks);
 
-        let knob_freq = Knob::new(self.knob_freq_param, Message::Freq);
-        // .tick_marks(&self.freq_tick_marks)
+        let knob_freq =
+            Knob::new(self.knob_freq_param, Message::Freq).tick_marks(&self.freq_tick_marks);
         // .text_marks(&self.freq_text_marks);
 
         let knob_style1 =
