@@ -16,3 +16,4 @@ pub struct ValueMarkers<'a> {
     pub mod_range_style_1: Option<ModRangeArcAppearance>,
     pub mod_range_style_2: Option<ModRangeArcAppearance>,
 }
+

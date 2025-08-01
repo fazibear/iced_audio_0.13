@@ -5,27 +5,24 @@
 mod draw;
 mod knob_info;
 mod state;
-mod value_markers;
 
 use crate::{
-    core::{ModulationRange, Normal, NormalParam, SliderStatus},
+    core::{ModulationRange, Normal, NormalParam, SliderStatus, ValueMarkers},
     style::knob::{Appearance, StyleSheet},
     text_marks, tick_marks,
 };
 use iced::{
-    Element, Event, Length, Rectangle, Renderer, Size,
     advanced::{
-        Clipboard, Layout, Shell, Widget,
         graphics::core::{event, keyboard, touch},
         layout, mouse,
         renderer::Style,
-        widget::{Tree, tree},
+        widget::{tree, Tree},
+        Clipboard, Layout, Shell, Widget,
     },
+    Element, Event, Length, Rectangle, Renderer, Size,
 };
 use knob_info::KnobInfo;
 use state::State;
-use value_markers::ValueMarkers;
-//use crate::native::{text_marks, tick_marks, SliderStatus};
 
 static DEFAULT_SIZE: f32 = 30.0;
 static DEFAULT_SCALAR: f32 = 0.00385;

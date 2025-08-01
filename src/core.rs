@@ -11,6 +11,7 @@ pub mod normal_param;
 pub mod offset;
 pub mod range;
 pub mod slider_status;
+pub mod value_markers;
 
 pub mod text_marks;
 pub mod tick_marks;
@@ -22,3 +23,4 @@ pub use normal_param::NormalParam;
 pub use offset::Offset;
 pub use range::*;
 pub use slider_status::SliderStatus;
+pub use value_markers::ValueMarkers;
