@@ -10,7 +10,7 @@ pub mod text_marks;
 //pub mod theme;
 pub mod tick_marks;
 // pub mod v_slider;
-// pub mod xy_pad;
+pub mod xy_pad;
 
 //pub mod db_meter;
 //pub mod phase_meter;

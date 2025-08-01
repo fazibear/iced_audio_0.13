@@ -12,11 +12,11 @@ use iced::Color;
 //     0x73 as f32 / 255.0,
 // );
 
-// pub const EMPTY: Color = Color::from_rgb(
-//     0x42 as f32 / 255.0,
-//     0x46 as f32 / 255.0,
-//     0x4D as f32 / 255.0,
-// );
+pub const EMPTY: Color = Color::from_rgb(
+    0x42 as f32 / 255.0,
+    0x46 as f32 / 255.0,
+    0x4D as f32 / 255.0,
+);
 // pub const BORDER: Color = Color::from_rgb(
 //     0x30 as f32 / 255.0,
 //     0x33 as f32 / 255.0,

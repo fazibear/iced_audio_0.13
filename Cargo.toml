@@ -16,3 +16,7 @@ iced = { version = "0.13.1", features = ["canvas", "advanced", "wgpu"] }
 name = "knob"
 required-features = []
 
+[[example]]
+name = "xy_pad"
+required-features = []
+

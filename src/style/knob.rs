@@ -2,11 +2,12 @@
 //!
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
-use iced::widget::canvas::LineCap;
+use crate::{
+    KnobAngleRange,
+    style::{default_colors, text_marks, tick_marks},
+};
 use iced::Color;
-
-use crate::style::{default_colors, text_marks, tick_marks};
-use crate::KnobAngleRange;
+use iced::widget::canvas::LineCap;
 
 /// The appearance of a [`Knob`],
 ///

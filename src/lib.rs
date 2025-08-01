@@ -7,3 +7,4 @@ pub use crate::core::*;
 mod widget;
 
 pub use widget::knob::Knob;
+pub use widget::xy_pad::XYPad;

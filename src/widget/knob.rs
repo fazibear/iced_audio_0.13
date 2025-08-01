@@ -8,19 +8,19 @@ mod state;
 mod value_markers;
 
 use crate::{
-    core::{ModulationRange, Normal, NormalParam},
+    core::{ModulationRange, Normal, NormalParam, SliderStatus},
     style::knob::{Appearance, StyleSheet},
     text_marks, tick_marks,
-    widget::SliderStatus,
 };
 use iced::{
-    advanced::{
-        graphics::core::{event, keyboard, touch},
-        layout, mouse, renderer,
-        widget::{tree, Tree},
-        Clipboard, Layout, Shell, Widget,
-    },
     Element, Event, Length, Rectangle, Renderer, Size,
+    advanced::{
+        Clipboard, Layout, Shell, Widget,
+        graphics::core::{event, keyboard, touch},
+        layout, mouse,
+        renderer::Style,
+        widget::{Tree, tree},
+    },
 };
 use knob_info::KnobInfo;
 use state::State;
@@ -274,6 +274,14 @@ where
     Message: 'a + Clone,
     Theme: StyleSheet,
 {
+    fn tag(&self) -> tree::Tag {
+        tree::Tag::of::<State>()
+    }
+
+    fn state(&self) -> tree::State {
+        tree::State::new(State::new(self.normal_param.value))
+    }
+
     fn size(&self) -> Size<Length> {
         Size {
             width: self.size,
@@ -288,14 +296,6 @@ where
         limits: &layout::Limits,
     ) -> layout::Node {
         layout::Node::new(limits.resolve(self.size, self.size, Size::ZERO))
-    }
-
-    fn tag(&self) -> tree::Tag {
-        tree::Tag::of::<State>()
-    }
-
-    fn state(&self) -> tree::State {
-        tree::State::new(State::new(self.normal_param.value))
     }
 
     fn on_event(
@@ -464,7 +464,7 @@ where
         state: &Tree,
         renderer: &mut Renderer,
         theme: &Theme,
-        _style: &renderer::Style,
+        _style: &Style,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
         _viewport: &Rectangle,
@@ -577,7 +577,6 @@ where
 impl<'a, Message, Theme> From<Knob<'a, Message, Theme>> for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
-
     Theme: 'a + StyleSheet,
 {
     fn from(knob: Knob<'a, Message, Theme>) -> Self {

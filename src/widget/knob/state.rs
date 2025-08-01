@@ -1,6 +1,6 @@
 use iced::advanced::{graphics::core::keyboard, mouse};
 
-use crate::{widget::SliderStatus, Normal};
+use crate::{Normal, SliderStatus};
 
 /// The local state of a [`Knob`].
 ///
