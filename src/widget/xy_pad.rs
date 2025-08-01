@@ -8,15 +8,15 @@ use crate::{
     style::xy_pad::{HandleShape, StyleSheet},
 };
 use iced::{
-    Border, Color, Element, Event, Length, Rectangle, Renderer, Shadow, Size,
     advanced::{
-        Clipboard, Layout, Renderer as _, Shell, Widget,
         graphics::core::{event, keyboard, touch},
         layout, mouse,
         renderer::{Quad, Style},
-        widget::{Tree, tree},
+        widget::{tree, Tree},
+        Clipboard, Layout, Renderer as _, Shell, Widget,
     },
     border::Radius,
+    Border, Color, Element, Event, Length, Rectangle, Renderer, Shadow, Size,
 };
 
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
@@ -587,40 +587,6 @@ where
         }
     }
 }
-
-// /// The renderer of an [`XYPad`].
-// ///
-// /// Your renderer will need to implement this trait before being
-// /// able to use an [`XYPad`] in your user interface.
-// ///
-// /// [`XYPad`]: struct.XYPad.html
-// pub trait Renderer: iced_native::Renderer
-// where
-//     Self::Theme: StyleSheet,
-// {
-//     /// Draws an [`XYPad`].
-//     ///
-//     /// It receives:
-//     ///   * the bounds of the [`XYPad`]
-//     ///   * the current cursor position
-//     ///   * the current normal of the x coordinate of the [`XYPad`]
-//     ///   * the current normal of the y coordinate of the [`XYPad`]
-//     ///   * whether the xy_pad is currently being dragged
-//     ///   * the style of the [`XYPad`]
-//     ///
-//     /// [`XYPad`]: struct.XYPad.html
-//     #[allow(clippy::too_many_arguments)]
-//     fn draw(
-//         &mut self,
-//         bounds: Rectangle,
-//         cursor_position: Point,
-//         normal_x: Normal,
-//         normal_y: Normal,
-//         dragging_status: bool,
-//         style_sheet: &dyn StyleSheet<Style = <Self::Theme as StyleSheet>::Style>,
-//         style: &<Self::Theme as StyleSheet>::Style,
-//     );
-// }
 
 impl<'a, Message, Theme> From<XYPad<'a, Message, Theme>> for Element<'a, Message, Theme, Renderer>
 where

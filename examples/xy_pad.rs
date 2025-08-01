@@ -108,8 +108,8 @@ impl Default for XYPadExample {
             xy_pad_custom_x_param: float_range.default_normal_param(),
             xy_pad_custom_y_param: float_range.default_normal_param(),
 
-            output_text_x: String::from("Move a widget"),
-            output_text_y: String::from(" "),
+            output_text_x: String::new(),
+            output_text_y: String::new(),
         }
     }
 }

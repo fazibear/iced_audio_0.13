@@ -5,7 +5,7 @@ mod default_colors;
 //pub mod h_slider;
 pub mod knob;
 // pub mod mod_range_input;
-// pub mod ramp;
+pub mod ramp;
 pub mod text_marks;
 //pub mod theme;
 pub mod tick_marks;

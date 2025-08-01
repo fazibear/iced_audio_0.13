@@ -351,7 +351,7 @@ impl Default for KnobExample {
             ]
             .into(),
 
-            output_text: String::from("Move a widget"),
+            output_text: String::new(),
         }
     }
 }
