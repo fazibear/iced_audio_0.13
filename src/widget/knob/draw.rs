@@ -59,7 +59,7 @@ fn tick_marks(
     knob_info: &KnobInfo,
     tick_marks: Option<&tick_marks::Group>,
     style: &Option<TickMarksAppearance>,
-    // tick_marks_cache: &tick_marks::PrimitiveCache,
+    //tick_marks_cache: &tick_marks::PrimitiveCache,
 ) {
     if let Some(tick_marks) = tick_marks {
         if let Some(style) = style {
@@ -73,7 +73,7 @@ fn tick_marks(
                 tick_marks,
                 &style.style,
                 false,
-                // tick_marks_cache,
+                //tick_marks_cache,
             )
         }
     }
@@ -386,8 +386,8 @@ pub fn circle_style(
     knob_info: &KnobInfo,
     style: CircleAppearance,
     value_markers: &ValueMarkers<'_>,
-    //    tick_marks_cache: &tick_marks::PrimitiveCache,
-    //    text_marks_cache: &text_marks::PrimitiveCache,
+    //tick_marks_cache: &tick_marks::PrimitiveCache,
+    //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
     markers(
         renderer,
@@ -418,8 +418,8 @@ pub fn arc_style(
     knob_info: &KnobInfo,
     style: ArcAppearance,
     value_markers: &ValueMarkers<'_>,
-    //    tick_marks_cache: &tick_marks::PrimitiveCache,
-    //    text_marks_cache: &text_marks::PrimitiveCache,
+    //tick_marks_cache: &tick_marks::PrimitiveCache,
+    //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
     markers(
         renderer,
@@ -490,8 +490,8 @@ pub fn arc_bipolar_style(
     knob_info: &KnobInfo,
     style: ArcBipolarAppearance,
     value_markers: &ValueMarkers<'_>,
-    // tick_marks_cache: &tick_marks::PrimitiveCache,
-    // text_marks_cache: &text_marks::PrimitiveCache,
+    //tick_marks_cache: &tick_marks::PrimitiveCache,
+    //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
     markers(
         renderer,

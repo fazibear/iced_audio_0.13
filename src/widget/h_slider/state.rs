@@ -13,8 +13,8 @@ pub struct State {
     pub continuous_normal: f32,
     pub pressed_modifiers: keyboard::Modifiers,
     pub last_click: Option<mouse::Click>,
-    //    tick_marks_cache: crate::graphics::tick_marks::PrimitiveCache,
-    //    text_marks_cache: crate::graphics::text_marks::PrimitiveCache,
+    //tick_marks_cache: crate::graphics::tick_marks::PrimitiveCache,
+    //text_marks_cache: crate::graphics::text_marks::PrimitiveCache,
 }
 
 impl State {
@@ -33,8 +33,8 @@ impl State {
             continuous_normal: normal.as_f32(),
             pressed_modifiers: Default::default(),
             last_click: None,
-            //           tick_marks_cache: Default::default(),
-            //           text_marks_cache: Default::default(),
+            //tick_marks_cache: Default::default(),
+            //text_marks_cache: Default::default(),
         }
     }
 }
