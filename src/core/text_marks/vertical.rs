@@ -3,10 +3,10 @@ use crate::{
     text_marks::Group,
 };
 use iced::{
-    Pixels, Point, Rectangle, Renderer, Size,
-    advanced::{Text, text::Renderer as _},
+    advanced::{text::Renderer as _, Text},
     alignment::{Horizontal, Vertical},
     widget::text::{LineHeight, Shaping, Wrapping},
+    Pixels, Point, Rectangle, Renderer, Size,
 };
 
 fn draw_aligned(
@@ -47,10 +47,10 @@ fn draw_aligned(
                 color,
                 // TODO: What is this?
                 Rectangle {
-                    x,
-                    y,
-                    width: text_bounds_width,
-                    height: text_bounds_height,
+                    x: 0.0,
+                    y: 0.0,
+                    width: 1000.0,
+                    height: 1000.0,
                 },
             );
         }

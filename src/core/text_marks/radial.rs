@@ -1,8 +1,8 @@
 use iced::{
-    Pixels, Point, Rectangle, Renderer, Size,
-    advanced::{Text, text::Renderer as _},
+    advanced::{text::Renderer as _, Text},
     alignment::{Horizontal, Vertical},
     widget::text::{LineHeight, Shaping, Wrapping},
+    Pixels, Point, Rectangle, Renderer, Size,
 };
 
 use super::Group;
@@ -31,7 +31,7 @@ pub fn draw_radial_text_marks(
     style: &Appearance,
     h_char_offset: f32,
     inverse: bool,
-    //    cache: &PrimitiveCache,
+    //cache: &PrimitiveCache,
 ) {
     let color = style.color;
     let font = style.font;
