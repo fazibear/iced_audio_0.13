@@ -76,7 +76,7 @@ fn tick_marks(
 
 fn text_marks(
     renderer: &mut Renderer,
-    value_bounds: &Rectangle,
+    bounds: &Rectangle,
     text_marks: Option<&text_marks::Group>,
     text_marks_style: &Option<TextMarksAppearance>,
     //text_marks_cache: &text_marks::PrimitiveCache,
@@ -85,7 +85,7 @@ fn text_marks(
         if let Some(style) = text_marks_style {
             text_marks::draw_horizontal_text_marks(
                 renderer,
-                value_bounds,
+                bounds,
                 text_marks,
                 &style.style,
                 &style.placement,
@@ -298,6 +298,8 @@ pub fn rect_style(
     //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
     let handle_width = f32::from(style.handle_width);
+    let border_width = style.back_border_width;
+    let twice_border_width = border_width * 2.0;
 
     let value_bounds = Rectangle {
         x: (bounds.x + (handle_width / 2.0)).round(),
@@ -311,8 +313,8 @@ pub fn rect_style(
         &value_bounds,
         bounds,
         value_markers,
-        //    tick_marks_cache,
-        //    text_marks_cache,
+        //tick_marks_cache,
+        //text_marks_cache,
     );
 
     renderer.fill_quad(
@@ -333,19 +335,18 @@ pub fn rect_style(
         style.back_color,
     );
 
-    let border_width = style.back_border_width;
-    let twice_border_width = border_width * 2.0;
-
     let handle_offset = normal
         .scale(value_bounds.width - twice_border_width)
         .round();
 
+    let filled_offset = handle_offset + handle_width + style.handle_filled_gap;
+
     renderer.fill_quad(
         Quad {
             bounds: Rectangle {
-                x: bounds.x,
+                x: bounds.x + filled_offset,
                 y: bounds.y,
-                width: handle_offset + twice_border_width - style.handle_filled_gap,
+                width: bounds.width - filled_offset,
                 height: bounds.height,
             },
             border: Border {
@@ -387,6 +388,8 @@ pub fn rect_bipolar_style(
     //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
     let handle_width = f32::from(style.handle_width);
+    let border_width = style.back_border_width;
+    let twice_border_width = border_width * 2.0;
 
     let value_bounds = Rectangle {
         x: (bounds.x + (handle_width / 2.0)).round(),
@@ -403,9 +406,6 @@ pub fn rect_bipolar_style(
         //tick_marks_cache,
         //text_marks_cache,
     );
-
-    let border_width = style.back_border_width;
-    let twice_border_width = border_width * 2.0;
 
     renderer.fill_quad(
         Quad {

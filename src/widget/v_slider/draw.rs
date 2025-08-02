@@ -297,7 +297,6 @@ pub fn rect_style(
     //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
     let handle_height = f32::from(style.handle_height);
-
     let border_width = style.back_border_width;
     let twice_border_width = border_width * 2.0;
 
@@ -388,7 +387,6 @@ pub fn rect_bipolar_style(
     //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
     let handle_height = f32::from(style.handle_height);
-
     let border_width = style.back_border_width;
     let twice_border_width = border_width * 2.0;
 

@@ -271,7 +271,6 @@ where
 
 impl<'a, Message, Theme> Widget<Message, Theme, Renderer> for HSlider<'a, Message, Theme>
 where
-    Message: 'a + Clone,
     Theme: StyleSheet,
 {
     fn tag(&self) -> tree::Tag {
@@ -295,7 +294,7 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        layout::Node::new(limits.resolve(self.width, self.width, Size::ZERO))
+        layout::Node::new(limits.resolve(self.width, self.height, Size::ZERO))
     }
 
     fn on_event(
@@ -508,7 +507,7 @@ where
         };
 
         let normal = self.normal_param.value;
-        println!("{bounds:?}");
+
         match appearance {
             Appearance::Texture(style) => draw::texture_style(
                 renderer,

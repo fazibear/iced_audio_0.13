@@ -1,3 +1,7 @@
+//! Display an interactive vertical slider that controls a [`NormalParam`]
+//!
+//! [`NormalParam`]: ../core/normal_param/struct.Param.html
+
 mod draw;
 mod state;
 mod value_markers;
@@ -67,7 +71,7 @@ where
     /// [`VSlider`]: struct.VSlider.html
     pub fn new<F>(normal_param: NormalParam, on_change: F) -> Self
     where
-        F: 'static + Fn(Normal) -> Message,
+        F: 'a + Fn(Normal) -> Message,
     {
         VSlider {
             normal_param,

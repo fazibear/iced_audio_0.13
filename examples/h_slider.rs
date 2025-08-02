@@ -2,10 +2,9 @@ mod colors;
 mod info_text;
 
 use iced::{
-    advanced::image,
     application,
-    widget::{column, row, text},
-    Color, Element, Length, Rectangle, Result, Size, Theme,
+    widget::{column, image, row, text},
+    Color, Element, Length, Rectangle, Result, Size,
 };
 use iced_audio::{
     style::{
@@ -30,6 +29,8 @@ fn main() -> Result {
     .window_size(Size::new(600.0, 400.0))
     .run()
 }
+
+// Custom style for the Rect HSlider
 
 pub struct RectStyle;
 impl RectStyle {

@@ -2,10 +2,9 @@ mod colors;
 mod info_text;
 
 use iced::{
-    advanced::image,
     application,
-    widget::{canvas::LineCap, column, container, row, text},
-    Color, Element, Length, Rectangle, Result, Size, Theme,
+    widget::{column, container, image, row, text},
+    Color, Element, Length, Rectangle, Result, Size,
 };
 use iced_audio::{
     style::{
@@ -17,7 +16,7 @@ use iced_audio::{
         },
     },
     text_marks, tick_marks,
-    widget::v_slider::{self, VSlider},
+    widget::v_slider::VSlider,
     FloatRange, FreqRange, IntRange, LogDBRange, Normal, NormalParam, Offset,
 };
 
@@ -30,6 +29,8 @@ fn main() -> Result {
     .window_size(Size::new(600.0, 400.0))
     .run()
 }
+
+// Custom style for the Rect VSlider
 
 pub struct RectStyle;
 impl RectStyle {
@@ -430,6 +431,7 @@ impl VSliderExample {
                 ]
                 .max_width(120)
                 .height(Length::Fill)
+                .width(Length::Fill)
                 .spacing(10),
                 column![
                     text("Custom Style"),
