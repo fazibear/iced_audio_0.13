@@ -3,10 +3,7 @@
 //!
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
-use crate::{
-    core::{Normal, NormalParam, SliderStatus},
-    style::xy_pad::{HandleShape, StyleSheet},
-};
+use crate::core::{Normal, NormalParam, SliderStatus};
 use iced::{
     advanced::{
         graphics::core::{event, keyboard, touch},
@@ -18,6 +15,8 @@ use iced::{
     border::Radius,
     Border, Color, Element, Event, Length, Rectangle, Renderer, Shadow, Size,
 };
+
+pub use crate::style::xy_pad::{Appearance, HandleCircle, HandleShape, HandleSquare, StyleSheet};
 
 static DEFAULT_MODIFIER_SCALAR: f32 = 0.02;
 

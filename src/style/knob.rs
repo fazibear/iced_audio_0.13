@@ -3,11 +3,12 @@
 //! [`Knob`]: ../native/knob/struct.Knob.html
 
 use crate::{
-    KnobAngleRange,
     style::{default_colors, text_marks, tick_marks},
+    KnobAngleRange,
 };
 use iced::Color;
-use iced::widget::canvas::LineCap;
+
+pub use iced::widget::canvas::{Canvas, LineCap};
 
 /// The appearance of a [`Knob`],
 ///

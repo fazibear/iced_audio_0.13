@@ -1,238 +1,14 @@
-mod colors;
 mod info_text;
+mod style;
 
 use iced::{
     application,
-    widget::{canvas::LineCap, column, row, text},
-    Color, Element, Length, Result, Size, Theme,
+    widget::{column, row, text},
+    Element, Length, Result, Size,
 };
 use iced_audio::{
-    core::text_marks,
-    core::tick_marks,
-    style,
-    style::knob::{
-        Appearance, ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
-        ModRangeArcAppearance, NotchShape, StyleLength, StyleSheet, TextMarksAppearance,
-        ValueArcAppearance,
-    },
-    FloatRange, FreqRange, IntRange, Knob, LogDBRange, Normal, NormalParam,
+    text_marks, tick_marks, FloatRange, FreqRange, IntRange, Knob, LogDBRange, Normal, NormalParam,
 };
-
-pub struct CustomStyleCircle;
-impl CustomStyleCircle {
-    const ACTIVE_CIRCLE_NOTCH: CircleNotch = CircleNotch {
-        color: colors::HANDLE,
-        border_width: 1.0,
-        border_color: colors::FILLED,
-        diameter: StyleLength::Scaled(0.21),
-        offset: StyleLength::Scaled(0.21),
-    };
-    const ACTIVE_CIRCLE_STYLE: CircleAppearance = CircleAppearance {
-        color: colors::KNOB,
-        border_width: 3.0,
-        border_color: colors::KNOB_BORDER,
-        notch: NotchShape::Circle(Self::ACTIVE_CIRCLE_NOTCH),
-    };
-}
-impl StyleSheet for CustomStyleCircle {
-    type Style = Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance {
-        Appearance::Circle(Self::ACTIVE_CIRCLE_STYLE)
-    }
-
-    fn hovered(&self, _style: &Self::Style) -> Appearance {
-        Appearance::Circle(CircleAppearance {
-            notch: NotchShape::Circle(CircleNotch {
-                color: colors::HANDLE_HOVER,
-                border_color: colors::FILLED_HOVER,
-                ..Self::ACTIVE_CIRCLE_NOTCH
-            }),
-            ..Self::ACTIVE_CIRCLE_STYLE
-        })
-    }
-
-    fn dragging(&self, style: &Self::Style) -> Appearance {
-        self.hovered(style)
-    }
-
-    fn value_arc_appearance(&self, _style: &Self::Style) -> Option<ValueArcAppearance> {
-        Some(ValueArcAppearance {
-            width: 3.0,
-            offset: 1.5,
-            empty_color: Some(colors::KNOB_ARC_EMPTY),
-            left_filled_color: colors::KNOB_ARC,
-            right_filled_color: None,
-            cap: LineCap::Butt,
-        })
-    }
-
-    fn mod_range_arc_appearance(&self, _style: &Self::Style) -> Option<ModRangeArcAppearance> {
-        Some(ModRangeArcAppearance {
-            width: 3.0,
-            offset: 6.0,
-            empty_color: Some(colors::KNOB_ARC_EMPTY),
-            filled_color: colors::KNOB_ARC_RIGHT,
-            filled_inverse_color: colors::KNOB_ARC_RIGHT,
-            cap: LineCap::Butt,
-        })
-    }
-
-    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<TextMarksAppearance> {
-        Some(TextMarksAppearance {
-            style: style::text_marks::Appearance {
-                color: [0.16, 0.16, 0.16, 0.9].into(),
-                text_size: 11,
-                font: Default::default(),
-                bounds_width: 20,
-                bounds_height: 20,
-            },
-            offset: 15.0,
-            h_char_offset: 3.0,
-            v_offset: -0.75,
-        })
-    }
-}
-
-// Custom style for the Knob
-
-pub struct CustomStyleLine;
-impl CustomStyleLine {
-    const ACTIVE_CIRCLE_NOTCH: LineNotch = LineNotch {
-        color: Color::from_rgb(0.0, 0.82, 0.0),
-        width: StyleLength::Fixed(3.5),
-        length: StyleLength::Scaled(0.12),
-        offset: StyleLength::Fixed(5.0),
-        cap: LineCap::Round,
-    };
-    const ACTIVE_CIRCLE_STYLE: CircleAppearance = CircleAppearance {
-        color: colors::KNOB,
-        border_width: 0.0,
-        border_color: Color::TRANSPARENT,
-        notch: NotchShape::Line(Self::ACTIVE_CIRCLE_NOTCH),
-    };
-}
-impl StyleSheet for CustomStyleLine {
-    type Style = Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance {
-        Appearance::Circle(Self::ACTIVE_CIRCLE_STYLE)
-    }
-
-    fn hovered(&self, style: &Self::Style) -> Appearance {
-        self.active(style)
-    }
-
-    fn dragging(&self, style: &Self::Style) -> Appearance {
-        self.active(style)
-    }
-
-    fn value_arc_appearance(&self, _style: &Self::Style) -> Option<ValueArcAppearance> {
-        Some(ValueArcAppearance {
-            width: 2.5,
-            offset: 2.0,
-            empty_color: Some(colors::KNOB_ARC_EMPTY),
-            left_filled_color: colors::KNOB_ARC,
-            right_filled_color: Some(colors::KNOB_ARC_RIGHT),
-            cap: LineCap::Round,
-        })
-    }
-}
-
-// Custom style for the Knob
-
-pub struct CustomArc;
-impl StyleSheet for CustomArc {
-    type Style = Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance {
-        Appearance::Arc(ArcAppearance {
-            width: StyleLength::Fixed(3.15),
-            empty_color: colors::KNOB_ARC_EMPTY,
-            filled_color: colors::KNOB_ARC,
-            notch: NotchShape::Line(LineNotch {
-                color: colors::KNOB_ARC,
-                width: StyleLength::Fixed(3.15),
-                length: StyleLength::Scaled(0.25),
-                cap: LineCap::Round,
-                offset: StyleLength::Fixed(2.5),
-            }),
-            cap: LineCap::Round,
-        })
-    }
-
-    fn hovered(&self, style: &Self::Style) -> Appearance {
-        self.active(style)
-    }
-
-    fn dragging(&self, style: &Self::Style) -> Appearance {
-        self.active(style)
-    }
-
-    fn angle_range(&self, _style: &Self::Style) -> iced_audio::KnobAngleRange {
-        iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
-    }
-
-    fn mod_range_arc_appearance(&self, _style: &Self::Style) -> Option<ModRangeArcAppearance> {
-        Some(ModRangeArcAppearance {
-            width: 3.0,
-            offset: 1.5,
-            empty_color: Some(colors::KNOB_ARC_EMPTY),
-            filled_color: colors::KNOB_ARC,
-            filled_inverse_color: colors::KNOB_ARC_RIGHT,
-            cap: LineCap::Round,
-        })
-    }
-}
-
-// Custom style for the Knob
-
-pub struct CustomArcBipolar;
-impl CustomArcBipolar {
-    const NOTCH_CENTER: LineNotch = LineNotch {
-        color: colors::KNOB_ARC_EMPTY,
-        width: StyleLength::Fixed(3.15),
-        length: StyleLength::Scaled(0.39),
-        cap: LineCap::Butt,
-        offset: StyleLength::Fixed(0.0),
-    };
-}
-impl StyleSheet for CustomArcBipolar {
-    type Style = Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance {
-        Appearance::ArcBipolar(ArcBipolarAppearance {
-            width: StyleLength::Fixed(3.15),
-            empty_color: colors::KNOB_ARC_EMPTY,
-            left_filled_color: colors::KNOB_ARC,
-            right_filled_color: colors::KNOB_ARC_RIGHT,
-            notch_center: NotchShape::Line(Self::NOTCH_CENTER),
-            notch_left_right: Some((
-                NotchShape::Line(LineNotch {
-                    color: colors::KNOB_ARC,
-                    ..Self::NOTCH_CENTER
-                }),
-                NotchShape::Line(LineNotch {
-                    color: colors::KNOB_ARC_RIGHT,
-                    ..Self::NOTCH_CENTER
-                }),
-            )),
-            cap: LineCap::Butt,
-        })
-    }
-
-    fn hovered(&self, style: &Self::Style) -> Appearance {
-        self.active(style)
-    }
-
-    fn dragging(&self, style: &Self::Style) -> Appearance {
-        self.active(style)
-    }
-
-    fn angle_range(&self, _style: &Self::Style) -> iced_audio::KnobAngleRange {
-        iced_audio::KnobAngleRange::from_deg(40.0, 320.0)
-    }
-}
 
 fn main() -> Result {
     application("Knob Example", KnobExample::update, KnobExample::view)
@@ -438,19 +214,21 @@ impl KnobExample {
             .text_marks(&self.freq_text_marks);
 
         let knob_style1 = Knob::new(self.knob_style1_param, Message::Style1)
-            .style(CustomStyleCircle)
+            .style(style::knob::CustomStyleCircle)
             .text_marks(&self.float_text_marks);
 
-        let knob_style2 = Knob::new(self.knob_style2_param, Message::Style2).style(CustomStyleLine);
+        let knob_style2 =
+            Knob::new(self.knob_style2_param, Message::Style2).style(style::knob::CustomStyleLine);
 
-        let knob_style3 = Knob::new(self.knob_style3_param, Message::Style3).style(CustomArc);
+        let knob_style3 =
+            Knob::new(self.knob_style3_param, Message::Style3).style(style::knob::CustomArc);
 
         let knob_style4 =
-            Knob::new(self.knob_style4_param, Message::Style4).style(CustomArcBipolar);
+            Knob::new(self.knob_style4_param, Message::Style4).style(style::knob::CustomArcBipolar);
 
         let knob_style5 = Knob::new(self.knob_style5_param, Message::Style5)
             .bipolar_center(Normal::from_clipped(0.2))
-            .style(CustomArcBipolar);
+            .style(style::knob::CustomArcBipolar);
 
         // push the widgets into rows
         let knob_row = row![

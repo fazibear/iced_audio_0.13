@@ -8,7 +8,6 @@ mod value_markers;
 
 use crate::{
     core::{ModulationRange, Normal, NormalParam, SliderStatus},
-    style::h_slider::{Appearance, StyleSheet},
     text_marks, tick_marks,
 };
 use iced::{
@@ -23,6 +22,12 @@ use iced::{
 };
 use state::State;
 use value_markers::ValueMarkers;
+
+pub use crate::style::h_slider::{
+    Appearance, ClassicAppearance, ClassicHandle, ClassicRail, ModRangeAppearance,
+    ModRangePlacement, RectAppearance, RectBipolarAppearance, StyleSheet, TextMarksAppearance,
+    TextureAppearance, TickMarksAppearance,
+};
 
 static DEFAULT_HEIGHT: f32 = 14.0;
 static DEFAULT_SCALAR: f32 = 0.9575;

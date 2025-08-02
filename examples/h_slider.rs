@@ -1,23 +1,14 @@
-mod colors;
 mod info_text;
+mod style;
 
 use iced::{
     application,
     widget::{column, image, row, text},
-    Color, Element, Length, Rectangle, Result, Size,
+    Element, Length, Rectangle, Result, Size,
 };
 use iced_audio::{
-    style::{
-        self,
-        h_slider::{
-            Appearance, ClassicRail, ModRangeAppearance, ModRangePlacement, RectAppearance,
-            RectBipolarAppearance, StyleSheet, TextMarksAppearance, TextureAppearance,
-            TickMarksAppearance,
-        },
-    },
-    text_marks, tick_marks,
-    widget::h_slider::HSlider,
-    FloatRange, FreqRange, IntRange, LogDBRange, Normal, NormalParam, Offset,
+    text_marks, tick_marks, widget::h_slider::HSlider, FloatRange, FreqRange, IntRange, LogDBRange,
+    Normal, NormalParam,
 };
 
 fn main() -> Result {
@@ -28,166 +19,6 @@ fn main() -> Result {
     )
     .window_size(Size::new(600.0, 400.0))
     .run()
-}
-
-// Custom style for the Rect HSlider
-
-pub struct RectStyle;
-impl RectStyle {
-    const ACTIVE_RECT_STYLE: RectAppearance = RectAppearance {
-        back_color: colors::EMPTY,
-        back_border_width: 1.0,
-        back_border_radius: 2.0,
-        back_border_color: colors::BORDER,
-        filled_color: colors::FILLED,
-        handle_width: 4,
-        handle_color: colors::HANDLE,
-        handle_filled_gap: 1.0,
-    };
-}
-impl StyleSheet for RectStyle {
-    type Style = iced::Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance {
-        Appearance::Rect(Self::ACTIVE_RECT_STYLE)
-    }
-
-    fn hovered(&self, _style: &Self::Style) -> Appearance {
-        Appearance::Rect(RectAppearance {
-            filled_color: colors::FILLED_HOVER,
-            handle_width: 5,
-            ..Self::ACTIVE_RECT_STYLE
-        })
-    }
-
-    fn dragging(&self, style: &Self::Style) -> Appearance {
-        self.hovered(style)
-    }
-
-    fn mod_range_appearance(&self, _style: &Self::Style) -> Option<ModRangeAppearance> {
-        Some(ModRangeAppearance {
-            placement: ModRangePlacement::Bottom {
-                height: 3.0,
-                offset: 2.0,
-            },
-            back_border_color: Color::TRANSPARENT,
-            back_border_width: 0.0,
-            back_border_radius: 2.0,
-            back_color: Some(colors::KNOB_ARC_EMPTY),
-            filled_color: colors::KNOB_ARC,
-            filled_inverse_color: colors::KNOB_ARC_RIGHT,
-        })
-    }
-}
-
-// Custom style for the Rect Bipolar HSlider
-
-pub struct RectBipolarStyle;
-impl RectBipolarStyle {
-    const ACTIVE_RECT_STYLE: RectBipolarAppearance = RectBipolarAppearance {
-        back_color: colors::EMPTY,
-        back_border_width: 1.0,
-        back_border_radius: 2.0,
-        back_border_color: colors::BORDER,
-        left_filled_color: colors::FILLED,
-        right_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
-        handle_width: 4,
-        handle_left_color: colors::HANDLE,
-        handle_right_color: Color::from_rgb(0.0, 0.9, 0.0),
-        handle_center_color: Color::from_rgb(0.7, 0.7, 0.7),
-        handle_filled_gap: 1.0,
-    };
-}
-impl StyleSheet for RectBipolarStyle {
-    type Style = iced::Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance {
-        Appearance::RectBipolar(Self::ACTIVE_RECT_STYLE)
-    }
-
-    fn hovered(&self, _style: &Self::Style) -> Appearance {
-        Appearance::RectBipolar(RectBipolarAppearance {
-            left_filled_color: colors::FILLED_HOVER,
-            right_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
-            handle_width: 5,
-            ..Self::ACTIVE_RECT_STYLE
-        })
-    }
-
-    fn dragging(&self, style: &Self::Style) -> Appearance {
-        self.hovered(style)
-    }
-}
-
-// Custom style for the Texture HSlider
-
-pub struct TextureStyle(pub image::Handle, pub Rectangle);
-impl StyleSheet for TextureStyle {
-    type Style = iced::Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance {
-        Appearance::Texture(TextureAppearance {
-            rail: ClassicRail {
-                rail_colors: ([0.0, 0.0, 0.0, 0.9].into(), [0.36, 0.36, 0.36, 0.75].into()),
-                rail_widths: (1.0, 2.0),
-                rail_padding: 14.0,
-            },
-            handle_width: 38,
-            image_handle: self.0.clone(),
-            image_bounds: self.1,
-        })
-    }
-
-    fn hovered(&self, style: &Self::Style) -> Appearance {
-        self.active(style)
-    }
-
-    fn dragging(&self, style: &Self::Style) -> Appearance {
-        self.active(style)
-    }
-
-    fn tick_marks_appearance(&self, _style: &Self::Style) -> Option<TickMarksAppearance> {
-        Some(TickMarksAppearance {
-            style: style::tick_marks::Appearance {
-                tier_1: style::tick_marks::Shape::Line {
-                    length: 12.0,
-                    width: 2.0,
-                    color: [0.56, 0.56, 0.56, 0.75].into(),
-                },
-                tier_2: style::tick_marks::Shape::Line {
-                    length: 10.0,
-                    width: 1.0,
-                    color: [0.56, 0.56, 0.56, 0.75].into(),
-                },
-                tier_3: style::tick_marks::Shape::Line {
-                    length: 8.0,
-                    width: 1.0,
-                    color: [0.56, 0.56, 0.56, 0.75].into(),
-                },
-            },
-            placement: style::tick_marks::Placement::CenterSplit {
-                offset: Offset::ZERO,
-                fill_length: false,
-                gap: 9.0,
-            },
-        })
-    }
-
-    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<TextMarksAppearance> {
-        Some(TextMarksAppearance {
-            style: style::text_marks::Appearance {
-                color: [0.16, 0.16, 0.16, 0.9].into(),
-                text_size: 12,
-                font: Default::default(),
-                bounds_width: 30,
-                bounds_height: 14,
-            },
-            placement: style::text_marks::Placement::Center {
-                align: style::text_marks::Align::Start,
-                offset: Offset { x: 0.0, y: 20.0 },
-            },
-        })
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -389,18 +220,18 @@ impl HSliderExample {
 
         let h_slider_rect = HSlider::new(self.rect_param, Message::RectStyle)
             .height(Length::Fixed(24.0))
-            .style(RectStyle);
+            .style(style::h_slider::RectStyle);
 
         let h_slider_rect_bp = HSlider::new(self.rect_bp_param, Message::BipolarRectStyle)
             .height(Length::Fixed(24.0))
-            .style(RectBipolarStyle);
+            .style(style::h_slider::RectBipolarStyle);
 
         let h_slider_texture = HSlider::new(self.texture_param, Message::TextureStyle)
             .tick_marks(&self.float_tick_marks)
             .text_marks(&self.float_text_marks)
             // the height of the texture
             .height(Length::Fixed(20.0))
-            .style(TextureStyle(
+            .style(style::h_slider::TextureStyle(
                 // clone the handle to the loaded texture
                 self.h_slider_texture_handle.clone(),
                 // bounds of the texture, where the origin is in the center

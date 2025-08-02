@@ -3,10 +3,7 @@
 //!
 //! [`NormalParam`]: ../core/normal_param/struct.NormalParam.html
 
-use crate::{
-    core::{Normal, NormalParam, SliderStatus},
-    style::ramp::StyleSheet,
-};
+use crate::core::{Normal, NormalParam, SliderStatus};
 use iced::{
     advanced::{
         graphics::{
@@ -22,6 +19,8 @@ use iced::{
     widget::canvas::{self, Frame, LineCap, Path, Stroke},
     Border, Element, Event, Length, Point, Rectangle, Renderer, Shadow, Size, Vector,
 };
+
+pub use crate::style::ramp::{Appearance, StyleSheet};
 
 static DEFAULT_WIDTH: f32 = 40.0;
 static DEFAULT_HEIGHT: f32 = 20.0;

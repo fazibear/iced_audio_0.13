@@ -10,7 +10,6 @@ mod value_markers;
 
 use crate::{
     core::{ModulationRange, Normal, NormalParam, SliderStatus},
-    style::knob::{Appearance, StyleSheet},
     text_marks, tick_marks,
 };
 use iced::{
@@ -26,6 +25,12 @@ use iced::{
 use knob_info::KnobInfo;
 use state::State;
 use value_markers::ValueMarkers;
+
+pub use crate::style::knob::{
+    Appearance, ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineCap,
+    LineNotch, ModRangeArcAppearance, NotchShape, StyleLength, StyleSheet, TextMarksAppearance,
+    TickMarksAppearance, ValueArcAppearance,
+};
 
 static DEFAULT_SIZE: f32 = 30.0;
 static DEFAULT_SCALAR: f32 = 0.00385;
