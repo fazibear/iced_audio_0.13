@@ -1,6 +1,7 @@
 mod core;
-mod style;
 mod widget;
+
+pub mod style;
 
 pub use crate::core::*;
 
@@ -31,3 +32,8 @@ pub use widget::ramp::Ramp;
 pub use widget::xy_pad;
 #[cfg(feature = "xy_pad")]
 pub use widget::xy_pad::XYPad;
+
+#[cfg(feature = "mod_range_input")]
+pub use widget::mod_range_input;
+#[cfg(feature = "mod_range_input")]
+pub use widget::mod_range_input::ModRangeInput;
