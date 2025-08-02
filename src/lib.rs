@@ -1,25 +1,33 @@
-pub mod core;
-pub mod style;
+mod core;
+mod style;
+mod widget;
 
-#[doc(no_inline)]
 pub use crate::core::*;
-
-pub mod widget;
 
 pub use core::text_marks;
 pub use core::tick_marks;
 
+#[cfg(feature = "knob")]
 pub use widget::knob;
+#[cfg(feature = "knob")]
 pub use widget::knob::Knob;
 
+#[cfg(feature = "h_slider")]
 pub use widget::h_slider;
+#[cfg(feature = "h_slider")]
 pub use widget::h_slider::HSlider;
 
+#[cfg(feature = "v_slider")]
 pub use widget::v_slider;
+#[cfg(feature = "v_slider")]
 pub use widget::v_slider::VSlider;
 
+#[cfg(feature = "ramp")]
 pub use widget::ramp;
+#[cfg(feature = "ramp")]
 pub use widget::ramp::Ramp;
 
+#[cfg(feature = "xy_pad")]
 pub use widget::xy_pad;
+#[cfg(feature = "xy_pad")]
 pub use widget::xy_pad::XYPad;
