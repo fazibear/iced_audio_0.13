@@ -42,7 +42,7 @@ cargo run --package simple --release
 
 Add `iced_audio` as a dependency in your `Cargo.toml`:
 ```toml
-iced_audio = "0.8"
+iced_audio = "0.13"
 ```
 Or if you want to use the GitHub version of `iced`:
 ```toml
