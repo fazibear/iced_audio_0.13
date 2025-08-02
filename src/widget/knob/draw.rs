@@ -84,7 +84,7 @@ fn text_marks(
     knob_info: &KnobInfo,
     text_marks: Option<&text_marks::Group>,
     style: &Option<TextMarksAppearance>,
-    // text_marks_cache: &text_marks::PrimitiveCache,
+    //text_marks_cache: &text_marks::PrimitiveCache,
 ) {
     if let Some(text_marks) = text_marks {
         if let Some(style) = style {
@@ -101,7 +101,7 @@ fn text_marks(
                 &style.style,
                 style.h_char_offset,
                 false,
-                //                text_marks_cache,
+                //text_marks_cache,
             )
         }
     }

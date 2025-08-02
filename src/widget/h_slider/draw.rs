@@ -308,15 +308,6 @@ pub fn rect_style(
         height: bounds.height,
     };
 
-    markers(
-        renderer,
-        &value_bounds,
-        bounds,
-        value_markers,
-        //tick_marks_cache,
-        //text_marks_cache,
-    );
-
     renderer.fill_quad(
         Quad {
             bounds: Rectangle {
@@ -375,6 +366,15 @@ pub fn rect_style(
             shadow: Shadow::default(),
         },
         style.handle_color,
+    );
+
+    markers(
+        renderer,
+        &value_bounds,
+        bounds,
+        value_markers,
+        //tick_marks_cache,
+        //text_marks_cache,
     );
 }
 

@@ -31,20 +31,13 @@ h_slider = ["iced/canvas", "iced/image"]
 v_slider = ["iced/canvas", "iced/image"]
 ramp = ["iced/canvas"]
 xy_pad = ["iced/canvas"]
+mod_range_input = ["iced/canvas"]
 
 default = [
   "knob",
   "h_slider",
   "v_slider",
   "ramp",
-  "xy_pad"
+  "xy_pad",
+  "mod_range_input"
 ]
-
-[[example]]
-name = "knob"
-required-features = ["knob"]
-
-[[example]]
-name = "xy_pad"
-required-features = ["xy_pad"]
-
