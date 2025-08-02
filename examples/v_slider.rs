@@ -1,0 +1,466 @@
+mod colors;
+mod info_text;
+
+use iced::{
+    advanced::image,
+    application,
+    widget::{canvas::LineCap, column, container, row, text},
+    Color, Element, Length, Rectangle, Result, Size, Theme,
+};
+use iced_audio::{
+    style::{
+        self,
+        v_slider::{
+            Appearance, ClassicRail, ModRangeAppearance, ModRangePlacement, RectAppearance,
+            RectBipolarAppearance, StyleSheet, TextMarksAppearance, TextureAppearance,
+            TickMarksAppearance,
+        },
+    },
+    text_marks, tick_marks,
+    widget::v_slider::{self, VSlider},
+    FloatRange, FreqRange, IntRange, LogDBRange, Normal, NormalParam, Offset,
+};
+
+fn main() -> Result {
+    application(
+        "VSlider Example",
+        VSliderExample::update,
+        VSliderExample::view,
+    )
+    .window_size(Size::new(600.0, 400.0))
+    .run()
+}
+
+pub struct RectStyle;
+impl RectStyle {
+    const ACTIVE_RECT_STYLE: RectAppearance = RectAppearance {
+        back_color: colors::EMPTY,
+        back_border_width: 1.0,
+        back_border_radius: 2.0,
+        back_border_color: colors::BORDER,
+        filled_color: colors::FILLED,
+        handle_height: 4,
+        handle_color: colors::HANDLE,
+        handle_filled_gap: 1.0,
+    };
+}
+impl StyleSheet for RectStyle {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> Appearance {
+        Appearance::Rect(Self::ACTIVE_RECT_STYLE)
+    }
+
+    fn hovered(&self, _style: &Self::Style) -> Appearance {
+        Appearance::Rect(RectAppearance {
+            filled_color: colors::FILLED_HOVER,
+            handle_height: 5,
+            ..Self::ACTIVE_RECT_STYLE
+        })
+    }
+
+    fn dragging(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
+
+    fn mod_range_appearance(&self, _style: &Self::Style) -> Option<ModRangeAppearance> {
+        Some(ModRangeAppearance {
+            placement: ModRangePlacement::CenterFilled { edge_padding: 0.0 },
+            back_border_width: 1.0,
+            back_border_radius: 2.0,
+            back_border_color: Color::TRANSPARENT,
+            back_color: None,
+            filled_color: Color {
+                r: 0.0,
+                g: 0.77,
+                b: 0.0,
+                a: 0.2,
+            },
+            filled_inverse_color: Color {
+                r: 0.0,
+                g: 0.77,
+                b: 0.0,
+                a: 0.2,
+            },
+        })
+    }
+}
+
+// Custom style for the Rect Bipolar VSlider
+
+pub struct RectBipolarStyle;
+impl RectBipolarStyle {
+    const ACTIVE_RECT_STYLE: RectBipolarAppearance = RectBipolarAppearance {
+        back_color: colors::EMPTY,
+        back_border_width: 1.0,
+        back_border_radius: 2.0,
+        back_border_color: colors::BORDER,
+        top_filled_color: colors::FILLED,
+        bottom_filled_color: Color::from_rgb(0.0, 0.605, 0.0),
+        handle_height: 4,
+        handle_top_color: colors::HANDLE,
+        handle_bottom_color: Color::from_rgb(0.0, 0.9, 0.0),
+        handle_center_color: Color::from_rgb(0.7, 0.7, 0.7),
+        handle_filled_gap: 1.0,
+    };
+}
+impl StyleSheet for RectBipolarStyle {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> Appearance {
+        Appearance::RectBipolar(Self::ACTIVE_RECT_STYLE)
+    }
+
+    fn hovered(&self, _style: &Self::Style) -> Appearance {
+        Appearance::RectBipolar(RectBipolarAppearance {
+            top_filled_color: colors::FILLED_HOVER,
+            bottom_filled_color: Color::from_rgb(0.0, 0.64, 0.0),
+            handle_height: 5,
+            ..Self::ACTIVE_RECT_STYLE
+        })
+    }
+
+    fn dragging(&self, style: &Self::Style) -> Appearance {
+        self.hovered(style)
+    }
+}
+
+// Custom style for the Texture VSlider
+
+pub struct TextureStyle(pub image::Handle, pub Rectangle);
+impl StyleSheet for TextureStyle {
+    type Style = iced::Theme;
+
+    fn active(&self, _style: &Self::Style) -> Appearance {
+        Appearance::Texture(TextureAppearance {
+            rail: ClassicRail {
+                rail_colors: ([0.0, 0.0, 0.0, 0.9].into(), [0.36, 0.36, 0.36, 0.75].into()),
+                rail_widths: (1.0, 2.0),
+                rail_padding: 14.0,
+            },
+            handle_height: 38,
+            image_handle: self.0.clone(),
+            image_bounds: self.1,
+        })
+    }
+
+    fn hovered(&self, style: &Self::Style) -> Appearance {
+        self.active(style)
+    }
+
+    fn dragging(&self, style: &Self::Style) -> Appearance {
+        self.active(style)
+    }
+
+    fn tick_marks_appearance(&self, _style: &Self::Style) -> Option<TickMarksAppearance> {
+        Some(TickMarksAppearance {
+            style: style::tick_marks::Appearance {
+                tier_1: style::tick_marks::Shape::Line {
+                    length: 12.0,
+                    width: 2.0,
+                    color: [0.56, 0.56, 0.56, 0.75].into(),
+                },
+                tier_2: style::tick_marks::Shape::Line {
+                    length: 10.0,
+                    width: 1.0,
+                    color: [0.56, 0.56, 0.56, 0.75].into(),
+                },
+                tier_3: style::tick_marks::Shape::Line {
+                    length: 8.0,
+                    width: 1.0,
+                    color: [0.56, 0.56, 0.56, 0.75].into(),
+                },
+            },
+            placement: style::tick_marks::Placement::CenterSplit {
+                offset: Offset::ZERO,
+                fill_length: false,
+                gap: 9.0,
+            },
+        })
+    }
+
+    fn text_marks_appearance(&self, _style: &Self::Style) -> Option<TextMarksAppearance> {
+        Some(TextMarksAppearance {
+            style: style::text_marks::Appearance {
+                color: [0.16, 0.16, 0.16, 0.9].into(),
+                text_size: 12,
+                font: Default::default(),
+                bounds_width: 30,
+                bounds_height: 14,
+            },
+            placement: style::text_marks::Placement::Center {
+                align: style::text_marks::Align::End,
+                offset: Offset { x: -20.0, y: 0.0 },
+            },
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
+enum Message {
+    Float(Normal),
+    Int(Normal),
+    DB(Normal),
+    Freq(Normal),
+    RectStyle(Normal),
+    RectBipolarStyle(Normal),
+    TextureStyle(Normal),
+}
+
+pub struct VSliderExample {
+    float_range: FloatRange,
+    int_range: IntRange,
+    db_range: LogDBRange,
+    freq_range: FreqRange,
+
+    float_param: NormalParam,
+    int_param: NormalParam,
+    db_param: NormalParam,
+    freq_param: NormalParam,
+    rect_param: NormalParam,
+    rect_bp_param: NormalParam,
+    texture_param: NormalParam,
+
+    v_slider_texture_handle: image::Handle,
+
+    float_tick_marks: tick_marks::Group,
+    int_tick_marks: tick_marks::Group,
+    db_tick_marks: tick_marks::Group,
+    freq_tick_marks: tick_marks::Group,
+
+    float_text_marks: text_marks::Group,
+    int_text_marks: text_marks::Group,
+    db_text_marks: text_marks::Group,
+    freq_text_marks: text_marks::Group,
+
+    output_text: String,
+}
+
+impl Default for VSliderExample {
+    fn default() -> Self {
+        // initalize parameters
+
+        let float_range = FloatRange::default_bipolar();
+        let int_range = IntRange::new(0, 5);
+        let db_range = LogDBRange::default();
+        let freq_range = FreqRange::default();
+
+        // create application
+
+        Self {
+            float_range,
+            int_range,
+            db_range,
+            freq_range,
+
+            // initialize the parameter of the VSlider widget
+            float_param: float_range.default_normal_param(),
+            int_param: int_range.default_normal_param(),
+            db_param: db_range.default_normal_param(),
+            freq_param: freq_range.normal_param(1000.0, 1000.0),
+            rect_param: float_range.default_normal_param(),
+            rect_bp_param: float_range.default_normal_param(),
+            texture_param: float_range.default_normal_param(),
+
+            v_slider_texture_handle: format!(
+                "{}/examples/images/iced_v_slider.png",
+                env!("CARGO_MANIFEST_DIR")
+            )
+            .into(),
+
+            float_tick_marks: tick_marks::Group::subdivided(1, 1, 1, Some(tick_marks::Tier::Two)),
+
+            int_tick_marks: tick_marks::Group::evenly_spaced(6, tick_marks::Tier::Two),
+
+            db_tick_marks: vec![
+                (db_range.map_to_normal(0.0), tick_marks::Tier::One),
+                (db_range.map_to_normal(1.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(3.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(6.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(12.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(-1.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(-3.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(-6.0), tick_marks::Tier::Two),
+                (db_range.map_to_normal(-12.0), tick_marks::Tier::Two),
+            ]
+            .into(),
+
+            freq_tick_marks: vec![
+                (freq_range.map_to_normal(20.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(50.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(100.0), tick_marks::Tier::One),
+                (freq_range.map_to_normal(200.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(400.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(1000.0), tick_marks::Tier::One),
+                (freq_range.map_to_normal(2000.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(5000.0), tick_marks::Tier::Two),
+                (freq_range.map_to_normal(10000.0), tick_marks::Tier::One),
+                (freq_range.map_to_normal(20000.0), tick_marks::Tier::Two),
+            ]
+            .into(),
+
+            float_text_marks: text_marks::Group::min_max_and_center("-1", "+1", "0"),
+            int_text_marks: text_marks::Group::evenly_spaced(&["A", "B", "C", "D", "E", "F"]),
+            db_text_marks: text_marks::Group::min_max_and_center("-12", "+12", "0"),
+            freq_text_marks: vec![
+                (freq_range.map_to_normal(100.0), "100"),
+                (freq_range.map_to_normal(1000.0), "1k"),
+                (freq_range.map_to_normal(10000.0), "10k"),
+            ]
+            .into(),
+
+            output_text: String::from("Move a widget"),
+        }
+    }
+}
+
+impl VSliderExample {
+    fn update(&mut self, message: Message) {
+        match message {
+            Message::Float(normal) => {
+                self.float_param.update(normal);
+
+                self.output_text = info_text::info_text_f32(
+                    "VSliderFloat",
+                    self.float_range.unmap_to_value(normal),
+                );
+            }
+            Message::Int(normal) => {
+                // Integer parameters must be snapped to make the widget "step" when moved.
+                self.int_param.update(self.int_range.snapped(normal));
+
+                self.output_text =
+                    info_text::info_text_i32("VSliderInt", self.int_range.unmap_to_value(normal));
+            }
+            Message::DB(normal) => {
+                self.db_param.update(normal);
+
+                self.output_text =
+                    info_text::info_text_db("VSliderDB", self.db_range.unmap_to_value(normal));
+            }
+            Message::Freq(normal) => {
+                self.freq_param.update(normal);
+
+                self.output_text = info_text::info_text_freq(
+                    "VSliderFreq",
+                    self.freq_range.unmap_to_value(normal),
+                );
+            }
+            Message::RectStyle(normal) => {
+                self.rect_param.update(normal);
+
+                self.output_text = info_text::info_text_f32(
+                    "VSliderRect",
+                    self.float_range.unmap_to_value(normal),
+                );
+            }
+            Message::RectBipolarStyle(normal) => {
+                self.rect_bp_param.update(normal);
+
+                self.output_text = info_text::info_text_f32(
+                    "VSliderBipolar",
+                    self.float_range.unmap_to_value(normal),
+                );
+            }
+            Message::TextureStyle(normal) => {
+                self.texture_param.update(normal);
+
+                self.output_text = info_text::info_text_f32(
+                    "VSliderTexture",
+                    self.float_range.unmap_to_value(normal),
+                );
+            }
+        }
+    }
+
+    fn view(&self) -> Element<Message> {
+        // create each of the VSlider widgets, passing in the value of
+        // the corresponding parameter
+
+        let v_slider_float = VSlider::new(self.float_param, Message::Float)
+            .tick_marks(&self.float_tick_marks)
+            .text_marks(&self.float_text_marks);
+
+        let v_slider_int = VSlider::new(self.int_param, Message::Int)
+            .tick_marks(&self.int_tick_marks)
+            .text_marks(&self.int_text_marks);
+
+        let v_slider_db = VSlider::new(self.db_param, Message::DB)
+            .tick_marks(&self.db_tick_marks)
+            .text_marks(&self.db_text_marks);
+
+        let v_slider_freq = VSlider::new(self.freq_param, Message::Freq)
+            .tick_marks(&self.freq_tick_marks)
+            .text_marks(&self.freq_text_marks);
+
+        let v_slider_rect = VSlider::new(self.rect_param, Message::RectStyle)
+            .width(Length::Fixed(24.0))
+            .style(RectStyle);
+
+        let v_slider_rect_bp = VSlider::new(self.rect_bp_param, Message::RectBipolarStyle)
+            .width(Length::Fixed(24.0))
+            .style(RectBipolarStyle);
+
+        let v_slider_texture = VSlider::new(self.texture_param, Message::TextureStyle)
+            .tick_marks(&self.float_tick_marks)
+            .text_marks(&self.float_text_marks)
+            // the width of the texture
+            .width(Length::Fixed(20.0))
+            .style(TextureStyle(
+                // clone the handle to the loaded texture
+                self.v_slider_texture_handle.clone(),
+                // bounds of the texture, where the origin is in the center
+                // of the image
+                Rectangle {
+                    x: -20.0 / 2.0,
+                    y: -38.0 / 2.0,
+                    width: 20.0,
+                    height: 38.0,
+                },
+            ));
+
+        // push the widgets into rows
+        let v_slider_row = container(
+            row![
+                column![
+                    text("Float Range"),
+                    v_slider_float,
+                    text("Log DB Range"),
+                    v_slider_db,
+                ]
+                .max_width(120)
+                .height(Length::Fill)
+                .spacing(10),
+                column![
+                    text("Custom Style"),
+                    v_slider_rect,
+                    text("Custom Texture Style"),
+                    v_slider_texture,
+                ]
+                .max_width(120)
+                .height(Length::Fill)
+                .spacing(10),
+                column![
+                    text("Int Range"),
+                    v_slider_int,
+                    text("Freq Range"),
+                    v_slider_freq,
+                ]
+                .max_width(120)
+                .height(Length::Fill)
+                .spacing(10),
+                column![text("Custom Bipolar Style"), v_slider_rect_bp,]
+                    .max_width(120)
+                    .height(Length::Fill)
+                    .spacing(10),
+            ]
+            .spacing(20),
+        )
+        .max_height(400);
+
+        column![v_slider_row, text(&self.output_text).size(16),]
+            .spacing(20)
+            .padding(20)
+            .into()
+    }
+}

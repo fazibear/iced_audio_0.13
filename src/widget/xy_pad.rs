@@ -240,7 +240,7 @@ where
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
-        _rectange: &Rectangle,
+        _viewport: &Rectangle,
     ) -> event::Status {
         let state = state.state.downcast_mut::<State>();
 

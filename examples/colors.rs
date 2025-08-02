@@ -17,11 +17,11 @@ pub const EMPTY: Color = Color::from_rgb(
     0x46 as f32 / 255.0,
     0x4D as f32 / 255.0,
 );
-// pub const BORDER: Color = Color::from_rgb(
-//     0x30 as f32 / 255.0,
-//     0x33 as f32 / 255.0,
-//     0x3C as f32 / 255.0,
-// );
+pub const BORDER: Color = Color::from_rgb(
+    0x30 as f32 / 255.0,
+    0x33 as f32 / 255.0,
+    0x3C as f32 / 255.0,
+);
 pub const FILLED: Color = Color::from_rgb(
     0x29 as f32 / 255.0,
     0x66 as f32 / 255.0,

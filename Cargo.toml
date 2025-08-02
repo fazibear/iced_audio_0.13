@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-iced = { version = "0.13.1", default-features = false, features = ["advanced", "canvas"] }
+iced = { version = "0.13.1", default-features = false, features = ["advanced", "canvas", "image"] }
 
 [dev-dependencies]
 iced = { version = "0.13.1" }

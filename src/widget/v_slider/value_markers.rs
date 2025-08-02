@@ -1,8 +1,7 @@
 use crate::{
-    style::knob::{
-        ModRangeArcAppearance, TextMarksAppearance, TickMarksAppearance, ValueArcAppearance,
-    },
-    text_marks, tick_marks, ModulationRange,
+    core::{text_marks, tick_marks},
+    style::v_slider::{ModRangeAppearance, TextMarksAppearance, TickMarksAppearance},
+    ModulationRange,
 };
 
 pub struct ValueMarkers<'a> {
@@ -12,8 +11,6 @@ pub struct ValueMarkers<'a> {
     pub mod_range_2: Option<&'a ModulationRange>,
     pub tick_marks_style: Option<TickMarksAppearance>,
     pub text_marks_style: Option<TextMarksAppearance>,
-    pub value_arc_style: Option<ValueArcAppearance>,
-    pub mod_range_style_1: Option<ModRangeArcAppearance>,
-    pub mod_range_style_2: Option<ModRangeArcAppearance>,
+    pub mod_range_style_1: Option<ModRangeAppearance>,
+    pub mod_range_style_2: Option<ModRangeAppearance>,
 }
-
