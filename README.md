@@ -34,8 +34,12 @@ Take a look at the [roadmap] for a list of planned widgets.
 ## Run examples with
 
 ```
-cargo run --package inputs_tour --release
-cargo run --package simple --release
+cargo run --examples knob --release
+cargo run --examples h_slider --release
+cargo run --examples v_slider --release
+cargo run --examples ramp --release
+cargo run --examples xy_pad --release
+cargo run --examples mod_range_input --release
 ```
 
 ## Installation
