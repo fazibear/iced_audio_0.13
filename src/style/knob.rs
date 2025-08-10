@@ -6,7 +6,7 @@ use crate::{
     style::{default_colors, text_marks, tick_marks},
     KnobAngleRange,
 };
-use iced::Color;
+use iced::{advanced::image, Color};
 
 pub use iced::widget::canvas::{Canvas, LineCap};
 
@@ -15,7 +15,7 @@ pub use iced::widget::canvas::{Canvas, LineCap};
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 #[derive(Debug, Clone)]
 pub enum Appearance {
-    //Texture(TextureStyle),
+    Texture(TextureAppearance),
     /// A classic circular style
     Circle(CircleAppearance),
     /// A modern arc style
@@ -25,26 +25,20 @@ pub enum Appearance {
     ArcBipolar(ArcBipolarAppearance),
 }
 
-/*
 /// An [`Appearance`] for a [`Knob`] that uses an image texture for the knob
 ///
 /// [`Appearance`]: enum.Appearance.html
 /// [`Knob`]: ../../native/knob/struct.Knob.html
 /// [`Handle`]: https://docs.rs/iced/0.1.1/iced/widget/image/struct.Handle.html
 #[derive(Debug, Clone)]
-pub struct TextureStyle {
+pub struct TextureAppearance {
     /// the [`Handle`] to the image texture
-    pub texture: image::Handle,
-    /// the width of the knob, not including padding
-    pub knob_width: u16,
-    /// the height of the knob, not including padding
-    pub knob_height: u16,
-    /// the texture padding around the knob bounding
-    /// rectangle. This is useful when the texture is of a glowing handle or has
-    /// a drop shadow, etc.
-    pub texture_padding: Option<TexturePadding>,
+    pub image_handle: image::Handle,
+    // /// the texture padding around the knob bounding
+    // /// rectangle. This is useful when the texture is of a glowing handle or has
+    // /// a drop shadow, etc.
+    // pub texture_padding: Option<TexturePadding>,
 }
-*/
 
 /// A length in a [`Knob`] stylesheet
 ///

@@ -1,8 +1,8 @@
 use crate::{
     style::knob::{
         ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineNotch,
-        ModRangeArcAppearance, NotchShape, TextMarksAppearance, TickMarksAppearance,
-        ValueArcAppearance,
+        ModRangeArcAppearance, NotchShape, TextMarksAppearance, TextureAppearance,
+        TickMarksAppearance, ValueArcAppearance,
     },
     text_marks, tick_marks,
     widget::knob::{bipolar_state::BipolarState, KnobInfo, ValueMarkers},
@@ -11,7 +11,7 @@ use crate::{
 use iced::{
     advanced::{graphics::geometry::Renderer as _, renderer::Quad, Renderer as _},
     border::Radius,
-    widget::canvas::{self, path::Arc, Frame, Path, Stroke},
+    widget::canvas::{self, path::Arc, Frame, Image, Path, Stroke},
     Border, Point, Radians, Rectangle, Renderer, Shadow, Size, Vector,
 };
 
@@ -595,4 +595,49 @@ pub fn arc_bipolar_style(
     } else {
         notch(renderer, knob_info, &style.notch_center)
     };
+}
+
+pub fn texture_style(
+    renderer: &mut Renderer,
+    knob_info: &KnobInfo,
+    style: TextureAppearance,
+    value_markers: &ValueMarkers<'_>,
+    //tick_marks_cache: &tick_marks::PrimitiveCache,
+    //text_marks_cache: &text_marks::PrimitiveCache,
+) {
+    markers(
+        renderer,
+        knob_info,
+        value_markers,
+        //tick_marks_cache,
+        //text_marks_cache,
+    );
+    let width = knob_info.bounds.width;
+    let height = knob_info.bounds.height;
+    let value_angle = knob_info.value_angle + std::f32::consts::FRAC_PI_2;
+    let h_radius = width / 2.0;
+    let v_radius = width / 2.0;
+
+    let mut frame = Frame::new(renderer, Size::new(width, height));
+
+    if !(-0.001..=0.001).contains(&value_angle) {
+        frame.rotate(value_angle);
+    }
+
+    frame.draw_image(
+        Rectangle {
+            x: -h_radius,
+            y: -v_radius,
+            width,
+            height,
+        },
+        Image::from(&style.image_handle),
+    );
+
+    renderer.with_translation(
+        Vector::new(knob_info.bounds.x + h_radius, knob_info.bounds.y + v_radius),
+        |renderer| {
+            renderer.draw_geometry(frame.into_geometry());
+        },
+    );
 }

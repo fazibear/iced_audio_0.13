@@ -29,7 +29,7 @@ use value_markers::ValueMarkers;
 pub use crate::style::knob::{
     Appearance, ArcAppearance, ArcBipolarAppearance, CircleAppearance, CircleNotch, LineCap,
     LineNotch, ModRangeArcAppearance, NotchShape, StyleLength, StyleSheet, TextMarksAppearance,
-    TickMarksAppearance, ValueArcAppearance,
+    TextureAppearance, TickMarksAppearance, ValueArcAppearance,
 };
 
 static DEFAULT_SIZE: f32 = 30.0;
@@ -568,6 +568,15 @@ where
             ),
 
             Appearance::ArcBipolar(style) => draw::arc_bipolar_style(
+                renderer,
+                &knob_info,
+                style,
+                &value_markers,
+                //tick_marks_cache,
+                //text_marks_cache,
+            ),
+
+            Appearance::Texture(style) => draw::texture_style(
                 renderer,
                 &knob_info,
                 style,
